@@ -6,7 +6,7 @@ import play.api.libs.json.Json
 
 sealed trait Authentication
 case class ClientId(id: String) extends Authentication
-case class AccessToken(token: String) extends Authentication
+case class AccessToken(token: String) extends Authentication with InstagramData
 
 object Authentication {
 
@@ -74,9 +74,9 @@ object Authentication {
     * @param clientSecret Client secret. (You need to register this on instagram.com/developer)
     * @param redirectURI  URI which the response is sent to. (You need to register this on instagram.com/developer)
     * @param code         Authentication code. You can retrieve it via codeURL.
-    * @return             Either[Authentication, ScalagramError].
+    * @return             Response[Authentication].
     */
-  def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Either[Authentication, Response[InstagramError]] = {
+  def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Response[Authentication] = {
     val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
     val request = url("https://api.instagram.com/oauth/access_token") << args
     val response = Http(request > as.String).apply()
@@ -84,9 +84,9 @@ object Authentication {
     Json.parse(response).asOpt[Oauth].getOrElse {
       Json.parse(response).asOpt[Meta]
     } match {
-      case o: Oauth => Left(AccessToken(o.access_token))
-      case Some(e: Meta) => Right(Response[InstagramError](None, None, e))
-      case _ => Right(Response[InstagramError](None, None, Meta(Some("OauthException"), 500, Some("Unknown error"))))
+      case o: Oauth => ResponseOK(AccessToken(o.access_token), None, Meta(None, 200, None))
+      case Some(e: Meta) => ResponseError(e)
+      case _ => ResponseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
     }
   }
 
