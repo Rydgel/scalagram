@@ -7,7 +7,7 @@ object Scalagram {
 
   private val urlInstagramRoot = "https://api.instagram.com/v1"
 
-  def userInfo(auth: Authentication, userId: String): Either[Response[Profile], ScalagramError] = {
+  def userInfo(auth: Authentication, userId: String): Either[Response[Profile], Response[InstagramError]] = {
     val stringAuth = Authentication.toGETParams(auth)
     Request.send[Profile](url(s"$urlInstagramRoot/users/$userId/?$stringAuth"))
   }

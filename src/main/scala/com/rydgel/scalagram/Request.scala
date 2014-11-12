@@ -14,20 +14,18 @@ object Request {
    * @tparam T represent the type of the Instagram data requested
    * @return
    */
-  def send[T](request: Req)(implicit r: Reads[T]): Either[Response[T], ScalagramError] = {
-
+  def send[T <: InstagramData](request: Req)(implicit r: Reads[T]): Either[Response[T], Response[InstagramError]] = {
     val response = Http(request > as.String).apply()
-
-    val tryRequest = Try(
-      (Json.parse(response) \ "data").asOpt[T].getOrElse {
-        (Json.parse(response) \ "meta").as[ScalagramError]
-      }
-    ).toOption.getOrElse(ScalagramError(500, "OauthException", "Unknown error"))
-
-    tryRequest match {
-      case s: ScalagramError => Right(s)
+    tryRequested[T](response) match {
+      case e: Meta => Right(Response[InstagramError](None, None, e))
       case t: T => Left(Response(Some(t), tryPagination(response), Meta(None, 200, None)))
     }
+  }
+
+  private def tryRequested[T <: InstagramData](response: String)(implicit r: Reads[T]): InstagramData = {
+    Try(
+      (Json.parse(response) \ "data").asOpt[T].getOrElse { (Json.parse(response) \ "meta").as[Meta] }
+    ).toOption.getOrElse(Meta(Some("OauthException"), 500, Some("Unknown error")))
   }
 
   private def tryPagination(response: String): Option[Pagination] = {

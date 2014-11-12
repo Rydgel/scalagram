@@ -1,6 +1,6 @@
 package com.rydgel.scalagram
 
-import com.rydgel.scalagram.responses.{ScalagramError, Oauth}
+import com.rydgel.scalagram.responses._
 import dispatch._, Defaults._
 import play.api.libs.json.Json
 
@@ -76,17 +76,17 @@ object Authentication {
     * @param code         Authentication code. You can retrieve it via codeURL.
     * @return             Either[Authentication, ScalagramError].
     */
-  def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Either[Authentication, ScalagramError] = {
+  def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Either[Authentication, Response[InstagramError]] = {
     val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
     val request = url("https://api.instagram.com/oauth/access_token") << args
     val response = Http(request > as.String).apply()
 
     Json.parse(response).asOpt[Oauth].getOrElse {
-      Json.parse(response).asOpt[ScalagramError]
+      Json.parse(response).asOpt[Meta]
     } match {
       case o: Oauth => Left(AccessToken(o.access_token))
-      case Some(s: ScalagramError) => Right(s)
-      case _ => Right(ScalagramError(500, "OauthException", "Unknown error"))
+      case Some(e: Meta) => Right(Response[InstagramError](None, None, e))
+      case _ => Right(Response[InstagramError](None, None, Meta(Some("OauthException"), 500, Some("Unknown error"))))
     }
   }
 

@@ -8,7 +8,7 @@ case class Profile(id: String,
                    profile_picture: Option[String],
                    bio: Option[String],
                    website: Option[String],
-                   counts: ProfileStats) {
+                   counts: ProfileStats) extends InstagramData {
   lazy val fullName = full_name
   lazy val profilePicture = profile_picture
 }
