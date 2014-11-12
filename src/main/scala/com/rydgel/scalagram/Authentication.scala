@@ -40,42 +40,42 @@ object Authentication {
   }
 
   /** Create the URL to call when retrieving an authentication code.
-    *
-    * @param clientId       Client identifier. (You need to register this on instagram.com/developer)
-    * @param redirectURI    URI which the response is sent to. (You need to register this on instagram.com/developer)
-    * @param comments       Require comment scope.
-    * @param relationships  Require relationships scope.
-    * @param likes          Require likes scope.
-    * @return               String URL.
-    */
+   *
+   * @param clientId       Client identifier. (You need to register this on instagram.com/developer)
+   * @param redirectURI    URI which the response is sent to. (You need to register this on instagram.com/developer)
+   * @param comments       Require comment scope.
+   * @param relationships  Require relationships scope.
+   * @param likes          Require likes scope.
+   * @return               String URL.
+   */
   def codeURL(clientId: String, redirectURI: String, comments: Boolean = false,relationships: Boolean = false, likes: Boolean = false): String = {
     s"https://api.instagram.com/oauth/authorize/?client_id=$clientId&redirect_uri=$redirectURI" +
     s"&response_type=code&${scopes(comments, relationships, likes)}"
   }
 
   /** Create the URL to call when retrieving an access token.
-    *
-    * @param clientId       Client identifier. (You need to register this on instagram.com/developer)
-    * @param redirectURI    URI which the response is sent to. (You need to register this on instagram.com/developer)
-    * @param comments       Require comment scope.
-    * @param relationships  Require relationships scope.
-    * @param likes          Require likes scope.
-    * @return               String URL.
-    */
+   *
+   * @param clientId       Client identifier. (You need to register this on instagram.com/developer)
+   * @param redirectURI    URI which the response is sent to. (You need to register this on instagram.com/developer)
+   * @param comments       Require comment scope.
+   * @param relationships  Require relationships scope.
+   * @param likes          Require likes scope.
+   * @return               String URL.
+   */
   def tokenURL(clientId: String, redirectURI: String, comments: Boolean = false, relationships: Boolean = false,likes: Boolean = false): String = {
     s"https://api.instagram.com/oauth/authorize/?client_id=$clientId&redirect_uri=$redirectURI" +
     s"&response_type=token&${scopes(comments, relationships, likes)}"
   }
 
   /** Post request to exchange a authentication code against an access token.
-    * Note that an authentication code is valid one time only.
-    *
-    * @param clientId     Client identifier. (You need to register this on instagram.com/developer)
-    * @param clientSecret Client secret. (You need to register this on instagram.com/developer)
-    * @param redirectURI  URI which the response is sent to. (You need to register this on instagram.com/developer)
-    * @param code         Authentication code. You can retrieve it via codeURL.
-    * @return             Response[Authentication].
-    */
+   * Note that an authentication code is valid one time only.
+   *
+   * @param clientId     Client identifier. (You need to register this on instagram.com/developer)
+   * @param clientSecret Client secret. (You need to register this on instagram.com/developer)
+   * @param redirectURI  URI which the response is sent to. (You need to register this on instagram.com/developer)
+   * @param code         Authentication code. You can retrieve it via codeURL.
+   * @return             Response[Authentication].
+   */
   def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Response[Authentication] = {
     val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
     val request = url("https://api.instagram.com/oauth/access_token") << args

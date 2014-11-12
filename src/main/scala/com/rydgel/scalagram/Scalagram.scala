@@ -8,7 +8,7 @@ object Scalagram {
   private val urlInstagramRoot = "https://api.instagram.com/v1"
 
   /**
-   * Get basic information about a name.
+   * Get basic information about a user.
    *
    * @param auth Credentials
    * @param userId Id-number of the name to get information about.
