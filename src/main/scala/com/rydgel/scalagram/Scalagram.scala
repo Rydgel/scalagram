@@ -7,9 +7,17 @@ object Scalagram {
 
   private val urlInstagramRoot = "https://api.instagram.com/v1"
 
+  /**
+   * Get basic information about a name.
+   *
+   * @param auth Credentials
+   * @param userId Id-number of the name to get information about.
+   * @return Response[Profile]
+   */
   def userInfo(auth: Authentication, userId: String): Response[Profile] = {
     val stringAuth = Authentication.toGETParams(auth)
-    Request.send[Profile](url(s"$urlInstagramRoot/users/$userId/?$stringAuth"))
+    val request = url(s"$urlInstagramRoot/users/$userId/?$stringAuth")
+    Request.send[Profile](request)
   }
 
   def main(array: Array[String]) = {
