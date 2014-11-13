@@ -21,13 +21,14 @@ object Authentication {
     case AccessToken(token) => s"access_token=$token"
   }
 
-  /** Scope string which will be append to the URL.
-    *
-    * @param comments       Comments scope.
-    * @param relationships  Relationships scope.
-    * @param likes          Likes scope.
-    * @return               String
-    */
+  /**
+   * Scope string which will be append to the URL.
+   *
+   * @param comments       Comments scope.
+   * @param relationships  Relationships scope.
+   * @param likes          Likes scope.
+   * @return               String
+   */
   def scopes(comments: Boolean = false, relationships: Boolean = false, likes: Boolean = false): String = {
     val scopes = List(
       if (comments) "comments" else "",
@@ -39,7 +40,8 @@ object Authentication {
     else ""
   }
 
-  /** Create the URL to call when retrieving an authentication code.
+  /**
+   * Create the URL to call when retrieving an authentication code.
    *
    * @param clientId       Client identifier. (You need to register this on instagram.com/developer)
    * @param redirectURI    URI which the response is sent to. (You need to register this on instagram.com/developer)
@@ -53,7 +55,8 @@ object Authentication {
     s"&response_type=code&${scopes(comments, relationships, likes)}"
   }
 
-  /** Create the URL to call when retrieving an access token.
+  /**
+   * Create the URL to call when retrieving an access token.
    *
    * @param clientId       Client identifier. (You need to register this on instagram.com/developer)
    * @param redirectURI    URI which the response is sent to. (You need to register this on instagram.com/developer)
@@ -67,7 +70,8 @@ object Authentication {
     s"&response_type=token&${scopes(comments, relationships, likes)}"
   }
 
-  /** Post request to exchange a authentication code against an access token.
+  /**
+   * Post request to exchange a authentication code against an access token.
    * Note that an authentication code is valid one time only.
    *
    * @param clientId     Client identifier. (You need to register this on instagram.com/developer)

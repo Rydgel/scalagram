@@ -34,7 +34,6 @@ object Request {
         case Some(m: Meta) => ParseError(m)
         case Some(t: InstagramData) => ParseOk(t)
         case _ => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
-
     }
   }
 
