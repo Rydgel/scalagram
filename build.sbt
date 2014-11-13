@@ -2,6 +2,8 @@ name := "scalagram"
 
 scalaVersion := "2.11.4"
 
+scalacOptions += "-feature"
+
 resolvers ++= Seq(
   "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 )

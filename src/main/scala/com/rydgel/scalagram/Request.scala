@@ -9,6 +9,7 @@ import scala.util.Try
 object Request {
 
   /**
+   * Send the prepared request to an URL and parse the response to an appropriate case class.
    *
    * @param request Req, the dispatch request ready to by sent
    * @tparam T represent the type of the Instagram data requested
@@ -17,14 +18,22 @@ object Request {
   def send[T <: InstagramData](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
     val responseFuture = Http(request > as.String)
     responseFuture.map { response =>
-      tryRequest[T](response) match {
+      tryData[T](response) match {
         case ParseError(e) => ResponseError(e)
-        case ParseOk(t) => ResponseOK[T](t, tryPagination(response), Meta(None, 200, None))
+        case ParseOk(t) => ResponseOK[T](Some(t), tryPagination(response), Meta(None, 200, None))
       }
     }
   }
 
-  private def tryRequest[T <: InstagramData](response: String)(implicit r: Reads[T]): Parse[T] = {
+  /**
+   * Trying to parse the "data" field of a response.
+   *
+   * @param response String, Instagram response
+   * @param r JSON implicit reads for decoding
+   * @tparam T Whatever InstagramData you want to decode
+   * @return Parse[T] (ParseOk|ParseError)
+   */
+  private def tryData[T <: InstagramData](response: String)(implicit r: Reads[T]): Parse[T] = {
     Try(
       Json.parse(response) \ "data" match {
         case j: JsUndefined => tryMeta(response)
@@ -37,6 +46,12 @@ object Request {
     }
   }
 
+  /**
+   * Trying to decode the "meta" field of a response.
+   *
+   * @param response String, Instagram response
+   * @return Option[Meta]
+   */
   private def tryMeta(response: String): Option[Meta] = {
     Try(
       Json.parse(response) \ "meta" match {
@@ -46,6 +61,12 @@ object Request {
     ).toOption.flatten
   }
 
+  /**
+   * Trying to decode the "pagination" field of a response.
+   *
+   * @param response String, Instagram response
+   * @return Option[Pagination]
+   */
   private def tryPagination(response: String): Option[Pagination] = {
     Try(
       Json.parse(response) \ "pagination" match {

@@ -89,7 +89,7 @@ object Authentication {
       Json.parse(response).asOpt[Oauth].getOrElse {
         Json.parse(response).asOpt[Meta]
       } match {
-        case o: Oauth => ResponseOK(AccessToken(o.access_token), None, Meta(None, 200, None))
+        case o: Oauth => ResponseOK(Some(AccessToken(o.accessToken)), None, Meta(None, 200, None))
         case Some(e: Meta) => ResponseError(e)
         case _ => ResponseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
       }

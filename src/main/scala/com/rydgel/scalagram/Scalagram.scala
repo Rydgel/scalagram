@@ -3,6 +3,9 @@ package com.rydgel.scalagram
 import com.rydgel.scalagram.responses._
 import dispatch._
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 object Scalagram {
 
   private val urlInstagramRoot = "https://api.instagram.com/v1"
@@ -21,7 +24,7 @@ object Scalagram {
   }
 
   def main(array: Array[String]) = {
-    println("Hello")
+    
   }
 
 }
