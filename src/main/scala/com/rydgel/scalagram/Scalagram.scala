@@ -12,9 +12,9 @@ object Scalagram {
    *
    * @param auth Credentials
    * @param userId Id-number of the name to get information about.
-   * @return Response[Profile]
+   * @return a Future of Response[Profile]
    */
-  def userInfo(auth: Authentication, userId: String): Response[Profile] = {
+  def userInfo(auth: Authentication, userId: String): Future[Response[Profile]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"$urlInstagramRoot/users/$userId/?$stringAuth")
     Request.send[Profile](request)

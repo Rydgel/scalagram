@@ -48,7 +48,7 @@ object Authentication {
    * @param likes          Require likes scope.
    * @return               String URL.
    */
-  def codeURL(clientId: String, redirectURI: String, comments: Boolean = false,relationships: Boolean = false, likes: Boolean = false): String = {
+  def codeURL(clientId: String, redirectURI: String, comments: Boolean = false, relationships: Boolean = false, likes: Boolean = false): String = {
     s"https://api.instagram.com/oauth/authorize/?client_id=$clientId&redirect_uri=$redirectURI" +
     s"&response_type=code&${scopes(comments, relationships, likes)}"
   }
@@ -62,7 +62,7 @@ object Authentication {
    * @param likes          Require likes scope.
    * @return               String URL.
    */
-  def tokenURL(clientId: String, redirectURI: String, comments: Boolean = false, relationships: Boolean = false,likes: Boolean = false): String = {
+  def tokenURL(clientId: String, redirectURI: String, comments: Boolean = false, relationships: Boolean = false, likes: Boolean = false): String = {
     s"https://api.instagram.com/oauth/authorize/?client_id=$clientId&redirect_uri=$redirectURI" +
     s"&response_type=token&${scopes(comments, relationships, likes)}"
   }
@@ -74,19 +74,21 @@ object Authentication {
    * @param clientSecret Client secret. (You need to register this on instagram.com/developer)
    * @param redirectURI  URI which the response is sent to. (You need to register this on instagram.com/developer)
    * @param code         Authentication code. You can retrieve it via codeURL.
-   * @return             Response[Authentication].
+   * @return             Future of Response[Authentication]
    */
-  def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Response[Authentication] = {
+  def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Future[Response[Authentication]] = {
     val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
     val request = url("https://api.instagram.com/oauth/access_token") << args
-    val response = Http(request > as.String).apply()
+    val responseFuture = Http(request > as.String)
 
-    Json.parse(response).asOpt[Oauth].getOrElse {
-      Json.parse(response).asOpt[Meta]
-    } match {
-      case o: Oauth => ResponseOK(AccessToken(o.access_token), None, Meta(None, 200, None))
-      case Some(e: Meta) => ResponseError(e)
-      case _ => ResponseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
+    responseFuture.map { response =>
+      Json.parse(response).asOpt[Oauth].getOrElse {
+        Json.parse(response).asOpt[Meta]
+      } match {
+        case o: Oauth => ResponseOK(AccessToken(o.access_token), None, Meta(None, 200, None))
+        case Some(e: Meta) => ResponseError(e)
+        case _ => ResponseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
+      }
     }
   }
 

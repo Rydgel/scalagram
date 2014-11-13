@@ -12,13 +12,15 @@ object Request {
    *
    * @param request Req, the dispatch request ready to by sent
    * @tparam T represent the type of the Instagram data requested
-   * @return
+   * @return a Future of Response[T]
    */
-  def send[T <: InstagramData](request: Req)(implicit r: Reads[T]): Response[T] = {
-    val response = Http(request > as.String).apply()
-    tryRequest[T](response) match {
-      case ParseError(e) => ResponseError(e)
-      case ParseOk(t) => ResponseOK[T](t, tryPagination(response), Meta(None, 200, None))
+  def send[T <: InstagramData](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
+    val responseFuture = Http(request > as.String)
+    responseFuture.map { response =>
+      tryRequest[T](response) match {
+        case ParseError(e) => ResponseError(e)
+        case ParseOk(t) => ResponseOK[T](t, tryPagination(response), Meta(None, 200, None))
+      }
     }
   }
 
