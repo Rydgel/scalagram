@@ -5,6 +5,8 @@ import dispatch._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.Success
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Scalagram {
 
@@ -26,8 +28,13 @@ object Scalagram {
   def main(array: Array[String]) = {
     /*val at = AccessToken("36783.d949468.13d14f697ab5496188bb2e34e8f46acc")
     val future = userInfo(at, "36783")
-    val data = Await.result(future, 10.seconds)
-    println(data)*/
+
+    future onSuccess {
+      case ResponseOK(data, pagination, meta) => println(data)
+      case ResponseError(meta) => println(meta)
+    }
+
+    Thread.sleep(10000)*/
   }
 
 }
