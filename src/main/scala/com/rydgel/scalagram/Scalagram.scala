@@ -41,13 +41,17 @@ object Scalagram {
   }
 
   def main(array: Array[String]) = {
-    val at = AccessToken("36783.d949468.13d14f697ab5496188bb2e34e8f46acc")
+    val at = AccessToken("")
     val future = userFeed(at)
 
     future onSuccess {
-      case ResponseOK(data, pagination, meta) => println(data) ; println(pagination)
-      case ResponseError(meta) => println(meta)
+      case Response(data, pagination, meta) => println(data) ; println(pagination)
     }
+
+    future onFailure {
+      case t => println("An error has occured: " + t.getMessage)
+    }
+
 
     Thread.sleep(10000)
     /*val lines = scala.io.Source.fromFile("/tmp/json.json").mkString

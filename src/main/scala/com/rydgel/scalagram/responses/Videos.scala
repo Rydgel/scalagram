@@ -2,7 +2,7 @@ package com.rydgel.scalagram.responses
 
 import play.api.libs.json.Json
 
-case class Videos(low_resolution: Video, standard_resolution: Video) extends InstagramData {
+case class Videos(low_resolution: Video, standard_resolution: Video) {
   lazy val lowResolution = low_resolution
   lazy val standardResolution = standard_resolution
 }

@@ -4,9 +4,6 @@ import com.rydgel.scalagram.responses._
 import dispatch._, Defaults._
 import play.api.libs.json.Json
 
-sealed trait Authentication
-case class ClientId(id: String) extends Authentication
-case class AccessToken(token: String) extends Authentication with InstagramData
 
 object Authentication {
 
@@ -83,17 +80,24 @@ object Authentication {
   def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Future[Response[Authentication]] = {
     val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
     val request = url("https://api.instagram.com/oauth/access_token") << args
-    val responseFuture = Http(request > as.String)
+    val responseFuture = Http(request)
 
-    responseFuture.map { response =>
-      Json.parse(response).asOpt[Oauth].getOrElse {
-        Json.parse(response).asOpt[Meta]
-      } match {
-        case o: Oauth => ResponseOK(Some(AccessToken(o.accessToken)), None, Meta(None, 200, None))
-        case Some(e: Meta) => ResponseError(e)
-        case _ => ResponseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
+    responseFuture.map { resp =>
+      val response = resp.getResponseBody
+      if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
+      Json.parse(response).asOpt[Oauth] match {
+        case Some(o: Oauth) => Response(Some(AccessToken(o.accessToken)), None, Meta(None, 200, None))
+        case _ =>
+          val errorMeta = Meta(Some("OauthException"), 500, Some("Unknown error"))
+          val meta = Json.parse(response).asOpt[Meta].getOrElse(errorMeta)
+          Response(None, None, meta)
       }
     }
+  }
+
+  private def parseMeta(response: String): Meta = {
+    val errorMeta = Meta(Some("OauthException"), 500, Some("Unknown error"))
+    Json.parse(response).validate[Meta].getOrElse(errorMeta)
   }
 
 }

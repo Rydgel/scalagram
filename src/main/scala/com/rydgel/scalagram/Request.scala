@@ -2,7 +2,7 @@ package com.rydgel.scalagram
 
 import com.rydgel.scalagram.responses._
 import dispatch._, Defaults._
-import play.api.libs.json.{Reads, JsUndefined, Json}
+import play.api.libs.json._
 
 import scala.util.Try
 
@@ -16,63 +16,20 @@ object Request {
    * @return        a Future of Response[T]
    */
   def send[T](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
-    val responseFuture = Http(request > as.String)
-    responseFuture.map { response =>
-      tryData[T](response) match {
-        case ParseError(e) => ResponseError(e)
-        case ParseOk(t) => ResponseOK[T](Some(t), tryPagination(response), Meta(None, 200, None))
+    Http(request).map { resp =>
+      val response = resp.getResponseBody
+      if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
+      val data = (Json.parse(response) \ "data").validate[T] match {
+        case JsError(e) => throw new Exception(e.toString())
+        case JsSuccess(value, _) => value
       }
+      val pagination = (Json.parse(response) \ "pagination").asOpt[Pagination]
+      Response[T](Some(data), pagination, parseMeta(response))
     }
   }
 
-  /**
-   * Trying to parse the "data" field of a response.
-   *
-   * @param response String, Instagram response
-   * @param r        JSON implicit reads for decoding
-   * @tparam T       Whatever InstagramData you want to decode
-   * @return         Parse[T] (ParseOk|ParseError)
-   */
-  private def tryData[T](response: String)(implicit r: Reads[T]): Parse[T] = {
-    Try(
-      Json.parse(response) \ "data" match {
-        case j: JsUndefined => tryMeta(response)
-        case x => x.asOpt[T]
-      }).toOption.flatten match {
-      case Some(m: Meta) => ParseError(m)
-      case Some(t: T) => ParseOk(t)
-      case _ => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
-    }
+  private def parseMeta(response: String): Meta = {
+    val errorMeta = Meta(Some("UnknownException"), 500, Some("Unknown error"))
+    (Json.parse(response) \ "meta").validate[Meta].getOrElse(errorMeta)
   }
-
-  /**
-   * Trying to decode the "meta" field of a response.
-   *
-   * @param response String, Instagram response
-   * @return         Option[Meta]
-   */
-  private def tryMeta(response: String): Option[Meta] = {
-    Try(
-      Json.parse(response) \ "meta" match {
-        case j: JsUndefined => None
-        case x => x.asOpt[Meta]
-      }
-    ).toOption.flatten
-  }
-
-  /**
-   * Trying to decode the "pagination" field of a response.
-   *
-   * @param response String, Instagram response
-   * @return         Option[Pagination]
-   */
-  private def tryPagination(response: String): Option[Pagination] = {
-    Try(
-      Json.parse(response) \ "pagination" match {
-        case j: JsUndefined => None
-        case x => x.asOpt[Pagination]
-      }
-    ).toOption.flatten
-  }
-
 }

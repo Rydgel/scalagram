@@ -18,8 +18,7 @@ case class Media(
     videos: Option[Videos],
     id: String,
     user_has_liked: Boolean,
-    location: Option[Location])
-  extends InstagramData {
+    location: Option[Location]) {
   lazy val usersInPhoto = users_in_photo
   lazy val createdTime = created_time
   lazy val userHasLiked = user_has_liked

@@ -2,7 +2,7 @@ package com.rydgel.scalagram.responses
 
 import play.api.libs.json.Json
 
-case class Likes(count: Int, data: List[User]) extends InstagramData {
+case class Likes(count: Int, data: List[User]) {
   lazy val users = data
 }
 object Likes {

@@ -2,7 +2,7 @@ package com.rydgel.scalagram.responses
 
 import play.api.libs.json._
 
-case class Oauth(access_token: String, user: User) extends InstagramData {
+case class Oauth(access_token: String, user: User) {
   lazy val accessToken = access_token
 }
 object Oauth {

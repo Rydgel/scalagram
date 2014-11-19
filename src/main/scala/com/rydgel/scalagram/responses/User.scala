@@ -2,7 +2,7 @@ package com.rydgel.scalagram.responses
 
 import play.api.libs.json._
 
-case class User(id: String, username: String, full_name: String, profile_picture: String) extends InstagramData {
+case class User(id: String, username: String, full_name: String, profile_picture: String) {
   lazy val fullName = full_name
   lazy val profilePicture = profile_picture
 }
