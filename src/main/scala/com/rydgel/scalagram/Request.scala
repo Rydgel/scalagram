@@ -37,11 +37,10 @@ object Request {
     Try(
       Json.parse(response) \ "data" match {
         case j: JsUndefined => tryMeta(response)
-        case x => println(Json.parse(response) \ "data") ; x.asOpt[T]
+        case x => x.asOpt[T]
       }).toOption.flatten match {
-      case None => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
       case Some(m: Meta) => ParseError(m)
-      case Some(t: T @unchecked) => ParseOk(t)
+      case Some(t: T) => ParseOk(t)
       case _ => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
     }
   }
