@@ -12,10 +12,10 @@ object Request {
    * Send the prepared request to an URL and parse the response to an appropriate case class.
    *
    * @param request Req, the dispatch request ready to by sent
-   * @tparam T represent the type of the Instagram data requested
-   * @return a Future of Response[T]
+   * @tparam T      represent the type of the Instagram data requested
+   * @return        a Future of Response[T]
    */
-  def send[T <: InstagramData](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
+  def send[T](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
     val responseFuture = Http(request > as.String)
     responseFuture.map { response =>
       tryData[T](response) match {
@@ -29,20 +29,20 @@ object Request {
    * Trying to parse the "data" field of a response.
    *
    * @param response String, Instagram response
-   * @param r JSON implicit reads for decoding
-   * @tparam T Whatever InstagramData you want to decode
-   * @return Parse[T] (ParseOk|ParseError)
+   * @param r        JSON implicit reads for decoding
+   * @tparam T       Whatever InstagramData you want to decode
+   * @return         Parse[T] (ParseOk|ParseError)
    */
-  private def tryData[T <: InstagramData](response: String)(implicit r: Reads[T]): Parse[T] = {
+  private def tryData[T](response: String)(implicit r: Reads[T]): Parse[T] = {
     Try(
       Json.parse(response) \ "data" match {
         case j: JsUndefined => tryMeta(response)
-        case x => x.asOpt[T]
+        case x => println(Json.parse(response) \ "data") ; x.asOpt[T]
       }).toOption.flatten match {
-        case None => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
-        case Some(m: Meta) => ParseError(m)
-        case Some(t: InstagramData) => ParseOk(t)
-        case _ => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
+      case None => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
+      case Some(m: Meta) => ParseError(m)
+      case Some(t: T @unchecked) => ParseOk(t)
+      case _ => ParseError(Meta(Some("OauthException"), 500, Some("Unknown error")))
     }
   }
 
@@ -50,7 +50,7 @@ object Request {
    * Trying to decode the "meta" field of a response.
    *
    * @param response String, Instagram response
-   * @return Option[Meta]
+   * @return         Option[Meta]
    */
   private def tryMeta(response: String): Option[Meta] = {
     Try(
@@ -65,7 +65,7 @@ object Request {
    * Trying to decode the "pagination" field of a response.
    *
    * @param response String, Instagram response
-   * @return Option[Pagination]
+   * @return         Option[Pagination]
    */
   private def tryPagination(response: String): Option[Pagination] = {
     Try(

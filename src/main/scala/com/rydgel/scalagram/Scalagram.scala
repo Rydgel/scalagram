@@ -2,10 +2,8 @@ package com.rydgel.scalagram
 
 import com.rydgel.scalagram.responses._
 import dispatch._
+import play.api.libs.json.Json
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.util.Success
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Scalagram {
@@ -15,9 +13,9 @@ object Scalagram {
   /**
    * Get basic information about a user.
    *
-   * @param auth Credentials
+   * @param auth   Credentials
    * @param userId Id-number of the name to get information about.
-   * @return a Future of Response[Profile]
+   * @return       A Future of Response[Profile]
    */
   def userInfo(auth: Authentication, userId: String): Future[Response[Profile]] = {
     val stringAuth = Authentication.toGETParams(auth)
@@ -25,16 +23,36 @@ object Scalagram {
     Request.send[Profile](request)
   }
 
+  /**
+   * See the authenticated user's feed.
+   *
+   * @param auth  Credentials
+   * @param count Max number of results to return.
+   * @param minId Return media later than this.
+   * @param maxId Return media earlier than this.
+   * @return      A Future of a Response of a List[Media]
+   */
+  def userFeed(auth: Authentication, count: Option[Int] = None, minId: Option[String] = None,
+               maxId: Option[String] = None): Future[Response[List[Media]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"$urlInstagramRoot/users/self/feed?$stringAuth&count=${count.mkString}" +
+                      s"&min_id=${minId.mkString}&max_id=${maxId.mkString}")
+    Request.send[List[Media]](request)
+  }
+
   def main(array: Array[String]) = {
-    /*val at = AccessToken("36783.d949468.13d14f697ab5496188bb2e34e8f46acc")
-    val future = userInfo(at, "36783")
+    val at = AccessToken("36783.d949468.13d14f697ab5496188bb2e34e8f46acc")
+    val future = userFeed(at)
 
     future onSuccess {
-      case ResponseOK(data, pagination, meta) => println(data)
+      case ResponseOK(data, pagination, meta) => println(data) ; println(pagination)
       case ResponseError(meta) => println(meta)
     }
 
-    Thread.sleep(10000)*/
+    Thread.sleep(10000)
+    /*val lines = scala.io.Source.fromFile("/tmp/json.json").mkString
+    val js = Json.parse(lines)
+    println(js.validate[List[Media]])*/
   }
 
 }
