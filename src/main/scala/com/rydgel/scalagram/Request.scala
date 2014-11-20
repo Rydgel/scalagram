@@ -4,7 +4,6 @@ import com.rydgel.scalagram.responses._
 import dispatch._, Defaults._
 import play.api.libs.json._
 
-import scala.util.Try
 
 object Request {
 

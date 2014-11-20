@@ -80,7 +80,7 @@ object Scalagram {
    * Search for a user by name.
    *
    * @param auth  Credentials.
-   * @param name  name to search a user for.
+   * @param name  Name to search a user for.
    * @param count Max number of results to return.
    * @return      A Future of a Response of a List[UserSearch]
    */
@@ -88,6 +88,59 @@ object Scalagram {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/users/search?$stringAuth&q=$name&count=${count.mkString}")
     Request.send[List[UserSearch]](request)
+  }
+
+  /**
+   * Get the list of users this user follows.
+   *
+   * @param auth   Credentials.
+   * @param userId Instagram ID of the user.
+   * @param count  Max number of results to return.
+   * @param cursor Return users after this cursor.
+   * @return       A Future of a Response of a List[User]
+   */
+  def follows(auth: Authentication, userId: String, count: Option[Int] = None,
+              cursor: Option[String] = None): Future[Response[List[User]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(
+      s"https://api.instagram.com/v1/users/$userId/follows?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
+    )
+    Request.send[List[User]](request)
+  }
+
+  /**
+   * Get the list of users this user is followed by.
+   *
+   * @param auth   Credentials.
+   * @param userId Instagram ID of the user.
+   * @param count  Max number of results to return.
+   * @param cursor Return users after this cursor.
+   * @return       A Future of a Response of a List[User]
+   */
+  def followedBy(auth: Authentication, userId: String, count: Option[Int] = None,
+                 cursor: Option[String] = None): Future[Response[List[User]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(
+      s"https://api.instagram.com/v1/users/$userId/followed-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
+    )
+    Request.send[List[User]](request)
+  }
+
+  /**
+   * View users who has sent a follow request.
+   *
+   * @param auth   Credentials.
+   * @param count  Max number of results to return.
+   * @param cursor Return users after this cursor.
+   * @return       A Future of a Response of a List[User]
+   */
+  def relationshipRequests(auth: Authentication, count: Option[Int] = None,
+                           cursor: Option[String] = None): Future[Response[List[User]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(
+      s"https://api.instagram.com/v1/users/self/requested-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
+    )
+    Request.send[List[User]](request)
   }
 
 }
