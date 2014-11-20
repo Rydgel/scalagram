@@ -2,9 +2,6 @@ package com.rydgel.scalagram
 
 import com.rydgel.scalagram.responses._
 import dispatch._
-import play.api.libs.json.Json
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object Scalagram {
 
@@ -38,25 +35,6 @@ object Scalagram {
     val request = url(s"$urlInstagramRoot/users/self/feed?$stringAuth&count=${count.mkString}" +
                       s"&min_id=${minId.mkString}&max_id=${maxId.mkString}")
     Request.send[List[Media]](request)
-  }
-
-  def main(array: Array[String]) = {
-    val at = AccessToken("")
-    val future = userFeed(at)
-
-    future onSuccess {
-      case Response(data, pagination, meta) => println(data) ; println(pagination)
-    }
-
-    future onFailure {
-      case t => println("An error has occured: " + t.getMessage)
-    }
-
-
-    Thread.sleep(10000)
-    /*val lines = scala.io.Source.fromFile("/tmp/json.json").mkString
-    val js = Json.parse(lines)
-    println(js.validate[List[Media]])*/
   }
 
 }

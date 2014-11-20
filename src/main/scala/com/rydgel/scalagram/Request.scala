@@ -32,4 +32,5 @@ object Request {
     val errorMeta = Meta(Some("UnknownException"), 500, Some("Unknown error"))
     (Json.parse(response) \ "meta").validate[Meta].getOrElse(errorMeta)
   }
+
 }

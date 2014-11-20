@@ -80,9 +80,8 @@ object Authentication {
   def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Future[Response[Authentication]] = {
     val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
     val request = url("https://api.instagram.com/oauth/access_token") << args
-    val responseFuture = Http(request)
 
-    responseFuture.map { resp =>
+    Http(request).map { resp =>
       val response = resp.getResponseBody
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       Json.parse(response).asOpt[Oauth] match {
