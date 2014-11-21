@@ -17,7 +17,7 @@ case class Media(
     images: Images,
     videos: Option[Videos],
     id: String,
-    user_has_liked: Boolean,
+    user_has_liked: Option[Boolean],
     location: Option[Location]) {
   lazy val usersInPhoto = users_in_photo
   lazy val createdTime = created_time
