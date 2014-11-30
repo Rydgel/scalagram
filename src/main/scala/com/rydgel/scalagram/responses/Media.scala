@@ -3,7 +3,7 @@ package com.rydgel.scalagram.responses
 import play.api.libs.json._
 
 case class Media(
-    attribution: Option[String],
+    attribution: Option[Attribution],
     `type`: String,
     users_in_photo: List[UserInPhoto],
     filter: String,
