@@ -20,10 +20,13 @@ object Request {
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       val data = (Json.parse(response) \ "data").validate[T] match {
         case JsError(e) => throw new Exception(e.toString())
-        case JsSuccess(value, _) => value
+        case JsSuccess(value, _) => value match {
+          case None => None
+          case _ => Some(value)
+        }
       }
       val pagination = (Json.parse(response) \ "pagination").asOpt[Pagination]
-      Response[T](Some(data), pagination, parseMeta(response))
+      Response[T](data, pagination, parseMeta(response))
     }
   }
 

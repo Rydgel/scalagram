@@ -2,7 +2,7 @@ package com.rydgel.scalagram.responses
 
 import play.api.libs.json.Json
 
-case class Videos(low_bandwith: Video, low_resolution: Video, standard_resolution: Video) {
+case class Videos(low_bandwith: Option[Video], low_resolution: Video, standard_resolution: Video) {
   lazy val lowBandwith = low_bandwith
   lazy val lowResolution = low_resolution
   lazy val standardResolution = standard_resolution
