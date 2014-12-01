@@ -1,8 +1,10 @@
 package com.rydgel.scalagram
 
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.rydgel.scalagram.responses._
 import dispatch._, Defaults._
 import play.api.libs.json._
+import scala.collection.JavaConverters._
 
 
 object Request {
@@ -17,7 +19,7 @@ object Request {
   def send[T](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
     Http(request).map { resp =>
       val response = resp.getResponseBody
-      val headers = resp.getHeaders
+      val headers = ningHeadersToMap(resp.getHeaders)
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       val data = (Json.parse(response) \ "data").validate[T] match {
         case JsError(e) => throw new Exception(e.toString())
@@ -34,6 +36,10 @@ object Request {
   private def parseMeta(response: String): Meta = {
     val errorMeta = Meta(Some("UnknownException"), 500, Some("Unknown error"))
     (Json.parse(response) \ "meta").validate[Meta].getOrElse(errorMeta)
+  }
+
+  private def ningHeadersToMap(headers: FluentCaseInsensitiveStringsMap) = {
+    mapAsScalaMapConverter(headers).asScala.map(e => e._1 -> e._2.asScala.toSeq).toMap
   }
 
 }

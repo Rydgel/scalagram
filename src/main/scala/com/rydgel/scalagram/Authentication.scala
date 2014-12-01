@@ -1,8 +1,11 @@
 package com.rydgel.scalagram
 
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.rydgel.scalagram.responses._
 import dispatch._, Defaults._
 import play.api.libs.json.Json
+
+import scala.collection.JavaConverters._
 
 
 object Authentication {
@@ -78,12 +81,14 @@ object Authentication {
    * @return             Future of Response[Authentication]
    */
   def requestToken(clientId: String, clientSecret: String, redirectURI: String, code: String): Future[Response[Authentication]] = {
-    val args = Map("client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI, "code" -> code, "grant_type" -> "authorization_code")
+    val args = Map(
+      "client_id" -> clientId, "client_secret" -> clientSecret, "redirect_uri" -> redirectURI,
+      "code" -> code, "grant_type" -> "authorization_code"
+    )
     val request = url("https://api.instagram.com/oauth/access_token") << args
-
     Http(request).map { resp =>
       val response = resp.getResponseBody
-      val headers = resp.getHeaders
+      val headers = ningHeadersToMap(resp.getHeaders)
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       Json.parse(response).asOpt[Oauth] match {
         case Some(o: Oauth) => Response(Some(AccessToken(o.accessToken)), None, Meta(None, 200, None), headers)
@@ -98,6 +103,10 @@ object Authentication {
   private def parseMeta(response: String): Meta = {
     val errorMeta = Meta(Some("OauthException"), 500, Some("Unknown error"))
     Json.parse(response).validate[Meta].getOrElse(errorMeta)
+  }
+
+  private def ningHeadersToMap(headers: FluentCaseInsensitiveStringsMap) = {
+    mapAsScalaMapConverter(headers).asScala.map(e => e._1 -> e._2.asScala.toSeq).toMap
   }
 
 }
