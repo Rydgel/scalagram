@@ -83,13 +83,14 @@ object Authentication {
 
     Http(request).map { resp =>
       val response = resp.getResponseBody
+      val headers = resp.getHeaders
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       Json.parse(response).asOpt[Oauth] match {
-        case Some(o: Oauth) => Response(Some(AccessToken(o.accessToken)), None, Meta(None, 200, None))
+        case Some(o: Oauth) => Response(Some(AccessToken(o.accessToken)), None, Meta(None, 200, None), headers)
         case _ =>
           val errorMeta = Meta(Some("OauthException"), 500, Some("Unknown error"))
           val meta = Json.parse(response).asOpt[Meta].getOrElse(errorMeta)
-          Response(None, None, meta)
+          Response(None, None, meta, headers)
       }
     }
   }

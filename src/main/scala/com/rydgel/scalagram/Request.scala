@@ -17,6 +17,7 @@ object Request {
   def send[T](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
     Http(request).map { resp =>
       val response = resp.getResponseBody
+      val headers = resp.getHeaders
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       val data = (Json.parse(response) \ "data").validate[T] match {
         case JsError(e) => throw new Exception(e.toString())
@@ -26,7 +27,7 @@ object Request {
         }
       }
       val pagination = (Json.parse(response) \ "pagination").asOpt[Pagination]
-      Response[T](data, pagination, parseMeta(response))
+      Response[T](data, pagination, parseMeta(response), headers)
     }
   }
 
