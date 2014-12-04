@@ -420,7 +420,7 @@ object Scalagram {
   /**
    * Search for tags by name. Results are ordered first as an exact match, then by popularity.
    * Short tags will be treated as exact matches.
-   * 
+   *
    * @param auth Credentials.
    * @param tag  A valid tag name without a leading #. (eg. snowy, nofilter).
    * @return     A Future of a Response of a List of Tag.
@@ -429,6 +429,69 @@ object Scalagram {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/tags/search?q=$tag&$stringAuth")
     Request.send[List[Tag]](request)
+  }
+
+  /**
+   * Get information about a location.
+   *
+   * @param auth       Credentials.
+   * @param locationId ID-number of the location.
+   * @return           A Future of a Response of a Location.
+   */
+  def location(auth: Authentication, locationId: String): Future[Response[Location]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/locations/$locationId?$stringAuth")
+    Request.send[Location](request)
+  }
+
+  /**
+   * Get a list of recent media objects from a given location.
+   * May return a mix of both image and video types.
+   *
+   * @param auth         Credentials.
+   * @param locationId   ID-number of the location.
+   * @param minTimestamp Return media after this UNIX timestamp.
+   * @param maxTimestamp Return media before this UNIX timestamp.
+   * @param minId        Return media later than this.
+   * @param maxId        Return media earlier than this.
+   * @return             A Future of a Response of a List of Media.
+   */
+  def locationMedia(auth: Authentication, locationId: String, minTimestamp: Option[String] = None,
+                    maxTimestamp: Option[String] = None, minId: Option[String] = None,
+                    maxId: Option[String] = None): Future[Response[List[Media]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(
+      s"https://api.instagram.com/v1/locations/$locationId/media/recent?$stringAuth" +
+      s"&min_timestamp=${minTimestamp.mkString}&max_timestamp=${maxTimestamp.mkString}" +
+      s"&min_id=${minId.mkString}&max_id=${maxId.mkString}"
+    )
+    Request.send[List[Media]](request)
+  }
+
+  /**
+   * Search for a location by geographic coordinate.
+   *
+   * @param auth             Credentials
+   * @param coordinates      Latitude & Longitude coordinates.
+   * @param distance         Default is 1000m (distance=1000), max distance is 5000.
+   * @param facebookPlacesId Returns a location mapped off of a Facebook places id.
+   *                         If used, a Foursquare id and lat, lng are not required.
+   * @param foursquareV2Id   Returns a location mapped off of a foursquare v2 api location id.
+   *                         If used, you are not required to use lat and lng.
+   * @return                 A Future of a Response of a List of Location.
+   */
+  def locationSearch(auth: Authentication, coordinates: Option[(String, String)], distance: Option[Int] = None,
+                     facebookPlacesId: Option[String], foursquareV2Id: Option[String] = None)
+  : Future[Response[List[Location]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val latitudeLongitude =
+      if (coordinates.isDefined) s"&lat=${coordinates.get._1}&lng=${coordinates.get._2}"
+      else ""
+    val request = url(
+      s"https://api.instagram.com/v1/locations/search?$stringAuth&facebook_places_id=${facebookPlacesId.mkString}" +
+      s"&foursquare_v2_id=${foursquareV2Id.mkString}$latitudeLongitude"
+    )
+    Request.send[List[Location]](request)
   }
 
 }
