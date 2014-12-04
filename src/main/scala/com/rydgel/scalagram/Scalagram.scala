@@ -166,6 +166,7 @@ object Scalagram {
    * @return       A Future of a Response of a Relationship.
    */
   private def updateRelationship(auth: Authentication, userId: String, action: String): Future[Response[Relationship]] = {
+    // todo header x-auth
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth") << Map("action" -> action)
     Request.send[Relationship](request)
