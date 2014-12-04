@@ -81,4 +81,66 @@ class ScalagramSpec extends FlatSpec with Matchers {
     request should be (anInstanceOf[Response[Relationship]])
   }
 
+  "media" should "return a Response[Media]" in {
+    val request = Await.result(Scalagram.media(auth, "867431466615431943_36783"), 10 seconds)
+    request should be (anInstanceOf[Response[Media]])
+  }
+
+  "mediaShortcode" should "return a Response[Media]" in {
+    val request = Await.result(Scalagram.mediaShortcode(auth, "wJvFKym-MH"), 10 seconds)
+    request should be (anInstanceOf[Response[Media]])
+  }
+
+  "mediaSearch" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.mediaSearch(auth, (48.858844, 2.294351)), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "popular" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.popular(auth), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "comments" should "return a Response[List[Comment]]" in {
+    val request = Await.result(Scalagram.comments(auth, "795030688240492786_36783"), 10 seconds)
+    request should be (anInstanceOf[Response[List[Comment]]])
+  }
+
+  "likes" should "return a Response[List[User]]" in {
+    val request = Await.result(Scalagram.likes(auth, "795030688240492786_36783"), 10 seconds)
+    request should be (anInstanceOf[Response[List[User]]])
+  }
+
+  "tagInformation" should "return a Response[Tag]" in {
+    val request = Await.result(Scalagram.tagInformation(auth, "vscocam"), 10 seconds)
+    request should be (anInstanceOf[Response[responses.Tag]])
+  }
+
+  "tagRecent" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.tagRecent(auth, "vscocam"), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "tagSearch" should "return a Response[List[Tag]]" in {
+    val request = Await.result(Scalagram.tagSearch(auth, "vscocam"), 10 seconds)
+    request should be (anInstanceOf[Response[List[responses.Tag]]])
+  }
+
+  "location" should "return a Response[LocationSearch]" in {
+    val request = Await.result(Scalagram.location(auth, "1"), 10 seconds)
+    request should be (anInstanceOf[Response[LocationSearch]])
+  }
+
+  "locationMedia" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.locationMedia(auth, "482406435"), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "locationSearch" should "return a Response[List[LocationSearch]]" in {
+    val coordinates = (35.944704325, -78.951736232)
+    val request = Await.result(Scalagram.locationSearch(auth, Some(coordinates)), 10 seconds)
+    request should be (anInstanceOf[Response[List[LocationSearch]]])
+    println(request)
+  }
+
 }

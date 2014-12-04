@@ -28,7 +28,8 @@ object Scalagram {
    * @return      A Future of a Response of a List[Media].
    */
   def userFeed(auth: Authentication, count: Option[Int] = None, minId: Option[String] = None,
-               maxId: Option[String] = None): Future[Response[List[Media]]] = {
+               maxId: Option[String] = None)
+  : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/users/self/feed?$stringAuth&count=${count.mkString}" +
@@ -50,8 +51,8 @@ object Scalagram {
    * @return             A Future of a Response of a List[Media].
    */
   def mediaRecent(auth: Authentication, userId: String, count: Option[Int] = None, minTimestamp: Option[String] = None,
-                  maxTimestamp: Option[String] = None, minId: Option[String] = None, maxId: Option[String] = None
-                 ): Future[Response[List[Media]]] = {
+                  maxTimestamp: Option[String] = None, minId: Option[String] = None, maxId: Option[String] = None)
+  : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/users/$userId/media/recent/?$stringAuth&max_timestamp=${maxTimestamp.mkString}" +
@@ -68,10 +69,12 @@ object Scalagram {
    * @param maxLikeId Return media liked before this id.
    * @return          A Future of a Response of a List[Media].
    */
-  def liked(auth: Authentication, count: Option[Int] = None, maxLikeId: Option[String] = None): Future[Response[List[Media]]] = {
+  def liked(auth: Authentication, count: Option[Int] = None, maxLikeId: Option[String] = None)
+  : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
-      s"https://api.instagram.com/v1/users/self/media/liked?$stringAuth&count=${count.mkString}&max_like_id=${maxLikeId.mkString}"
+      s"https://api.instagram.com/v1/users/self/media/liked?$stringAuth&count=${count.mkString}" +
+      s"&max_like_id=${maxLikeId.mkString}"
     )
     Request.send[List[Media]](request)
   }
@@ -84,7 +87,8 @@ object Scalagram {
    * @param count Max number of results to return.
    * @return      A Future of a Response of a List[UserSearch].
    */
-  def userSearch(auth: Authentication, name: String, count: Option[Int] = None): Future[Response[List[UserSearch]]] = {
+  def userSearch(auth: Authentication, name: String, count: Option[Int] = None)
+  : Future[Response[List[UserSearch]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/users/search?$stringAuth&q=$name&count=${count.mkString}")
     Request.send[List[UserSearch]](request)
@@ -99,8 +103,8 @@ object Scalagram {
    * @param cursor Return users after this cursor.
    * @return       A Future of a Response of a List[User].
    */
-  def follows(auth: Authentication, userId: String, count: Option[Int] = None,
-              cursor: Option[String] = None): Future[Response[List[User]]] = {
+  def follows(auth: Authentication, userId: String, count: Option[Int] = None, cursor: Option[String] = None)
+  : Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/users/$userId/follows?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
@@ -117,8 +121,8 @@ object Scalagram {
    * @param cursor Return users after this cursor.
    * @return       A Future of a Response of a List[User].
    */
-  def followedBy(auth: Authentication, userId: String, count: Option[Int] = None,
-                 cursor: Option[String] = None): Future[Response[List[User]]] = {
+  def followedBy(auth: Authentication, userId: String, count: Option[Int] = None, cursor: Option[String] = None)
+  : Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/users/$userId/followed-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
@@ -134,8 +138,8 @@ object Scalagram {
    * @param cursor Return users after this cursor.
    * @return       A Future of a Response of a List[User].
    */
-  def relationshipRequests(auth: Authentication, count: Option[Int] = None,
-                           cursor: Option[String] = None): Future[Response[List[User]]] = {
+  def relationshipRequests(auth: Authentication, count: Option[Int] = None, cursor: Option[String] = None)
+  : Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/users/self/requested-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
@@ -166,11 +170,11 @@ object Scalagram {
    * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @return             A Future of a Response of a Relationship.
    */
-  private def updateRelationship(auth: Authentication, userId: String, action: String, signedHeader: Option[String])
+  private def updateRelationship(auth: Authentication, userId: String, action: String, signedHeader: Option[String] = None)
   : Future[Response[Relationship]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth") << Map("action" -> action)
-    val request = addSignedHeader(signedHeader, prepareRequest)
+    val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Relationship](request)
   }
 
@@ -293,7 +297,8 @@ object Scalagram {
    * @return             A Future of a Response of a List of Media.
    */
   def mediaSearch(auth: Authentication, coordinates: (Double, Double), minTimestamp: Option[String] = None,
-                  maxTimestamp: Option[String] = None, distance: Option[Int] = None): Future[Response[List[Media]]] = {
+                  maxTimestamp: Option[String] = None, distance: Option[Int] = None)
+  : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/media/search?$stringAuth&lat=${coordinates._1.toString}&lng=${coordinates._2.toString}" +
@@ -338,11 +343,11 @@ object Scalagram {
    * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @return             A Future of a Response of Option[String].
    */
-  def comment(auth: Authentication, mediaId: String, comment: String, signedHeader: Option[String])
+  def comment(auth: Authentication, mediaId: String, comment: String, signedHeader: Option[String] = None)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
-    val request = addSignedHeader(signedHeader, prepareRequest)
+    val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Option[String]](request)
   }
 
@@ -355,11 +360,11 @@ object Scalagram {
    * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @return             A Future of a Response of Option[String].
    */
-  def commentDelete(auth: Authentication, mediaId: String, commentId: String, signedHeader: Option[String])
+  def commentDelete(auth: Authentication, mediaId: String, commentId: String, signedHeader: Option[String] = None)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth").DELETE
-    val request = addSignedHeader(signedHeader, prepareRequest)
+    val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Option[String]](request)
   }
 
@@ -384,10 +389,11 @@ object Scalagram {
    * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @return             A Future of a Response of Option[String].
    */
-  def like(auth: Authentication, mediaId: String, signedHeader: Option[String]): Future[Response[Option[String]]] = {
+  def like(auth: Authentication, mediaId: String, signedHeader: Option[String] = None)
+  : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").POST
-    val request = addSignedHeader(signedHeader, prepareRequest)
+    val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Option[String]](request)
   }
 
@@ -399,10 +405,11 @@ object Scalagram {
    * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @return             A Future of a Response of Option[String].
    */
-  def unlike(auth: Authentication, mediaId: String, signedHeader: Option[String]): Future[Response[Option[String]]] = {
+  def unlike(auth: Authentication, mediaId: String, signedHeader: Option[String] = None)
+  : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
-    val request = addSignedHeader(signedHeader, prepareRequest)
+    val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Option[String]](request)
   }
 
@@ -457,12 +464,12 @@ object Scalagram {
    *
    * @param auth       Credentials.
    * @param locationId ID-number of the location.
-   * @return           A Future of a Response of a Location.
+   * @return           A Future of a Response of a LocationSearch.
    */
-  def location(auth: Authentication, locationId: String): Future[Response[Location]] = {
+  def location(auth: Authentication, locationId: String): Future[Response[LocationSearch]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/locations/$locationId?$stringAuth")
-    Request.send[Location](request)
+    Request.send[LocationSearch](request)
   }
 
   /**
@@ -479,7 +486,8 @@ object Scalagram {
    */
   def locationMedia(auth: Authentication, locationId: String, minTimestamp: Option[String] = None,
                     maxTimestamp: Option[String] = None, minId: Option[String] = None,
-                    maxId: Option[String] = None): Future[Response[List[Media]]] = {
+                    maxId: Option[String] = None)
+  : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/locations/$locationId/media/recent?$stringAuth" +
@@ -499,30 +507,30 @@ object Scalagram {
    *                         If used, a Foursquare id and lat, lng are not required.
    * @param foursquareV2Id   Returns a location mapped off of a foursquare v2 api location id.
    *                         If used, you are not required to use lat and lng.
-   * @return                 A Future of a Response of a List of Location.
+   * @return                 A Future of a Response of a List of LocationSearch.
    */
-  def locationSearch(auth: Authentication, coordinates: Option[(String, String)], distance: Option[Int] = None,
-                     facebookPlacesId: Option[String], foursquareV2Id: Option[String] = None)
-  : Future[Response[List[Location]]] = {
+  def locationSearch(auth: Authentication, coordinates: Option[(Double, Double)], distance: Option[Int] = None,
+                     facebookPlacesId: Option[String] = None, foursquareV2Id: Option[String] = None)
+  : Future[Response[List[LocationSearch]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val latitudeLongitude =
-      if (coordinates.isDefined) s"&lat=${coordinates.get._1}&lng=${coordinates.get._2}"
+      if (coordinates.isDefined) s"&lat=${coordinates.get._1.toString}&lng=${coordinates.get._2.toString}"
       else ""
     val request = url(
       s"https://api.instagram.com/v1/locations/search?$stringAuth&facebook_places_id=${facebookPlacesId.mkString}" +
       s"&foursquare_v2_id=${foursquareV2Id.mkString}$latitudeLongitude"
     )
-    Request.send[List[Location]](request)
+    Request.send[List[LocationSearch]](request)
   }
 
   /**
    * Add the signed header to the request.
    *
-   * @param signedHeader   An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @param prepareRequest Prepared dispatch request
+   * @param signedHeader   An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
    * @return               A dispatch Req
    */
-  private def addSignedHeader(signedHeader: Option[String], prepareRequest: Req): Req = {
+  private def addSignedHeader(prepareRequest: Req, signedHeader: Option[String] = None): Req = {
     if (signedHeader.isDefined) prepareRequest <:< Map("X-Insta-Forwarded-For" -> signedHeader.get)
     else prepareRequest
   }
