@@ -79,6 +79,14 @@ object Authentication {
    */
   private def localIpAddress(): String = InetAddress.getLocalHost.getHostAddress
 
+  /**
+   * Converts an array of `bytes` to a hexadecimal representation String.
+   * "Stolen" from the sbt source code.
+   * Credits: http://www.scala-sbt.org/0.13.7/sxr/sbt/Hash.scala.html
+   *
+   * @param bytes Array of bytes
+   * @return      String
+   */
   private def toHex(bytes: Array[Byte]): String = {
     val buffer = new StringBuilder(bytes.length * 2)
     for (i <- 0 until bytes.length) {
