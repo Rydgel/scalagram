@@ -11,5 +11,6 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.3.7",
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
+  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "org.slf4j" % "slf4j-nop" % "1.6.4"
 )
