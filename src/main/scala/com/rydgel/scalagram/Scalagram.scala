@@ -299,4 +299,90 @@ object Scalagram {
     Request.send[List[Media]](request)
   }
 
+  /**
+   * Get a full list of comments on a media.
+   *
+   * @param auth    Credentials.
+   * @param mediaId Id-number of media object.
+   * @return        A Future of a Response of a List of Comment.
+   */
+  def comments(auth: Authentication, mediaId: String): Future[Response[List[Comment]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
+    Request.send[List[Comment]](request)
+  }
+
+  /**
+   * Create a comment on a media.
+   * Please email apidevelopers[at]instagram.com or visit http://bit.ly/instacomments for access.
+   *
+   * @param auth    Credentials.
+   * @param mediaId Id-number of media object.
+   * @param comment The actual comment. See http://instagram.com/developer/endpoints/comments/#post_media_comments
+   *                for the list of restrictions (anti-spam).
+   * @return        A Future of a Response of a List of Option[String].
+   */
+  def comment(auth: Authentication, mediaId: String, comment: String): Future[Response[Option[String]]] = {
+    // todo header x-auth
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
+    Request.send[Option[String]](request)
+  }
+
+  /**
+   * Remove a comment either on the authenticated user's media object or authored by the authenticated user.
+   *
+   * @param auth      Credentials.
+   * @param mediaId   Id-number of media object.
+   * @param commentId Id-number of the comment.
+   * @return          A Future of a Response of a List of Option[String].
+   */
+  def commentDelete(auth: Authentication, mediaId: String, commentId: String): Future[Response[Option[String]]] = {
+    // todo header x-auth
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth").DELETE
+    Request.send[Option[String]](request)
+  }
+
+  /**
+   * Get a list of users who have liked this media.
+   *
+   * @param auth    Credentials.
+   * @param mediaId Id-number of media object.
+   * @return        A Future of a Response of a List of User.
+   */
+  def likes(auth: Authentication, mediaId: String): Future[Response[List[User]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth")
+    Request.send[List[User]](request)
+  }
+
+  /**
+   * Set a like on this media by the currently authenticated user.
+   *
+   * @param auth    Credentials.
+   * @param mediaId Id-number of media object.
+   * @return        A Future of a Response of a List of Option[String].
+   */
+  def like(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
+    // todo header x-auth
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").POST
+    Request.send[Option[String]](request)
+  }
+
+  /**
+   * Remove a like on this media by the currently authenticated user.
+   * 
+   * @param auth    Credentials.
+   * @param mediaId Id-number of media object.
+   * @return        A Future of a Response of a List of Option[String].
+   */
+  def unike(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
+    // todo header x-auth
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
+    Request.send[Option[String]](request)
+  }
+
 }
