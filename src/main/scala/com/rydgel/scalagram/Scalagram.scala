@@ -373,12 +373,12 @@ object Scalagram {
 
   /**
    * Remove a like on this media by the currently authenticated user.
-   * 
+   *
    * @param auth    Credentials.
    * @param mediaId Id-number of media object.
    * @return        A Future of a Response of a List of Option[String].
    */
-  def unike(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
+  def unlike(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
     // todo header x-auth
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
