@@ -140,7 +140,6 @@ class ScalagramSpec extends FlatSpec with Matchers {
     val coordinates = (35.944704325, -78.951736232)
     val request = Await.result(Scalagram.locationSearch(auth, Some(coordinates)), 10 seconds)
     request should be (anInstanceOf[Response[List[LocationSearch]]])
-    println(request)
   }
 
 }
