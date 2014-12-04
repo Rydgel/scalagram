@@ -160,82 +160,96 @@ object Scalagram {
    * Send the request to update the relationship status.
    * This method is called from the methods named relationshipXXX.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @param action Action (follow/unfollow/block/unblock/approve/deny).
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param action       Action (follow/unfollow/block/unblock/approve/deny).
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  private def updateRelationship(auth: Authentication, userId: String, action: String): Future[Response[Relationship]] = {
-    // todo header x-auth
+  private def updateRelationship(auth: Authentication, userId: String, action: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth") << Map("action" -> action)
+    val prepareRequest = url(s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth") << Map("action" -> action)
+    val request = addSignedHeader(signedHeader, prepareRequest)
     Request.send[Relationship](request)
   }
 
   /**
    * Follow a user.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  def relationshipFollow(auth: Authentication, userId: String): Future[Response[Relationship]] = {
-    updateRelationship(auth, userId, action = "follow")
+  def relationshipFollow(auth: Authentication, userId: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
+    updateRelationship(auth, userId, action = "follow", signedHeader)
   }
 
   /**
    * Unfollow a user.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  def relationshipUnfollow(auth: Authentication, userId: String): Future[Response[Relationship]] = {
-    updateRelationship(auth, userId, action = "unfollow")
+  def relationshipUnfollow(auth: Authentication, userId: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
+    updateRelationship(auth, userId, action = "unfollow", signedHeader)
   }
 
   /**
    * Block a user.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  def relationshipBlock(auth: Authentication, userId: String): Future[Response[Relationship]] = {
-    updateRelationship(auth, userId, action = "block")
+  def relationshipBlock(auth: Authentication, userId: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
+    updateRelationship(auth, userId, action = "block", signedHeader)
   }
 
   /**
    * Unblock a user.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  def relationshipUnblock(auth: Authentication, userId: String): Future[Response[Relationship]] = {
-    updateRelationship(auth, userId, action = "unblock")
+  def relationshipUnblock(auth: Authentication, userId: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
+    updateRelationship(auth, userId, action = "unblock", signedHeader)
   }
 
   /**
    * Approve a follow request from a user.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  def relationshipApprove(auth: Authentication, userId: String): Future[Response[Relationship]] = {
-    updateRelationship(auth, userId, action = "approve")
+  def relationshipApprove(auth: Authentication, userId: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
+    updateRelationship(auth, userId, action = "approve", signedHeader)
   }
 
   /**
    * Ignore a follow request from a user.
    *
-   * @param auth   Credentials.
-   * @param userId Instagram ID of the user.
-   * @return       A Future of a Response of a Relationship.
+   * @param auth         Credentials.
+   * @param userId       Instagram ID of the user.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of a Relationship.
    */
-  def relationshipIgnore(auth: Authentication, userId: String): Future[Response[Relationship]] = {
-    updateRelationship(auth, userId, action = "ignore")
+  def relationshipIgnore(auth: Authentication, userId: String, signedHeader: Option[String])
+  : Future[Response[Relationship]] = {
+    updateRelationship(auth, userId, action = "ignore", signedHeader)
   }
 
   /**
@@ -317,31 +331,35 @@ object Scalagram {
    * Create a comment on a media.
    * Please email apidevelopers[at]instagram.com or visit http://bit.ly/instacomments for access.
    *
-   * @param auth    Credentials.
-   * @param mediaId Id-number of media object.
-   * @param comment The actual comment. See http://instagram.com/developer/endpoints/comments/#post_media_comments
-   *                for the list of restrictions (anti-spam).
-   * @return        A Future of a Response of Option[String].
+   * @param auth         Credentials.
+   * @param mediaId      Id-number of media object.
+   * @param comment      The actual comment. See http://instagram.com/developer/endpoints/comments/#post_media_comments
+   *                     for the list of restrictions (anti-spam).
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of Option[String].
    */
-  def comment(auth: Authentication, mediaId: String, comment: String): Future[Response[Option[String]]] = {
-    // todo header x-auth
+  def comment(auth: Authentication, mediaId: String, comment: String, signedHeader: Option[String])
+  : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
+    val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
+    val request = addSignedHeader(signedHeader, prepareRequest)
     Request.send[Option[String]](request)
   }
 
   /**
    * Remove a comment either on the authenticated user's media object or authored by the authenticated user.
    *
-   * @param auth      Credentials.
-   * @param mediaId   Id-number of media object.
-   * @param commentId Id-number of the comment.
-   * @return          A Future of a Response of Option[String].
+   * @param auth         Credentials.
+   * @param mediaId      Id-number of media object.
+   * @param commentId    Id-number of the comment.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of Option[String].
    */
-  def commentDelete(auth: Authentication, mediaId: String, commentId: String): Future[Response[Option[String]]] = {
-    // todo header x-auth
+  def commentDelete(auth: Authentication, mediaId: String, commentId: String, signedHeader: Option[String])
+  : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth").DELETE
+    val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth").DELETE
+    val request = addSignedHeader(signedHeader, prepareRequest)
     Request.send[Option[String]](request)
   }
 
@@ -361,28 +379,30 @@ object Scalagram {
   /**
    * Set a like on this media by the currently authenticated user.
    *
-   * @param auth    Credentials.
-   * @param mediaId Id-number of media object.
-   * @return        A Future of a Response of Option[String].
+   * @param auth         Credentials.
+   * @param mediaId      Id-number of media object.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of Option[String].
    */
-  def like(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
-    // todo header x-auth
+  def like(auth: Authentication, mediaId: String, signedHeader: Option[String]): Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").POST
+    val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").POST
+    val request = addSignedHeader(signedHeader, prepareRequest)
     Request.send[Option[String]](request)
   }
 
   /**
    * Remove a like on this media by the currently authenticated user.
    *
-   * @param auth    Credentials.
-   * @param mediaId Id-number of media object.
-   * @return        A Future of a Response of Option[String].
+   * @param auth         Credentials.
+   * @param mediaId      Id-number of media object.
+   * @param signedHeader An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @return             A Future of a Response of Option[String].
    */
-  def unlike(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
-    // todo header x-auth
+  def unlike(auth: Authentication, mediaId: String, signedHeader: Option[String]): Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
+    val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
+    val request = addSignedHeader(signedHeader, prepareRequest)
     Request.send[Option[String]](request)
   }
 
@@ -493,6 +513,18 @@ object Scalagram {
       s"&foursquare_v2_id=${foursquareV2Id.mkString}$latitudeLongitude"
     )
     Request.send[List[Location]](request)
+  }
+
+  /**
+   * Add the signed header to the request.
+   *
+   * @param signedHeader   An optional signed header. See: http://instagram.com/developer/restrict-api-requests/
+   * @param prepareRequest Prepared dispatch request
+   * @return               A dispatch Req
+   */
+  private def addSignedHeader(signedHeader: Option[String], prepareRequest: Req): Req = {
+    if (signedHeader.isDefined) prepareRequest <:< Map("X-Insta-Forwarded-For" -> signedHeader.get)
+    else prepareRequest
   }
 
 }
