@@ -320,7 +320,7 @@ object Scalagram {
    * @param mediaId Id-number of media object.
    * @param comment The actual comment. See http://instagram.com/developer/endpoints/comments/#post_media_comments
    *                for the list of restrictions (anti-spam).
-   * @return        A Future of a Response of a List of Option[String].
+   * @return        A Future of a Response of Option[String].
    */
   def comment(auth: Authentication, mediaId: String, comment: String): Future[Response[Option[String]]] = {
     // todo header x-auth
@@ -335,7 +335,7 @@ object Scalagram {
    * @param auth      Credentials.
    * @param mediaId   Id-number of media object.
    * @param commentId Id-number of the comment.
-   * @return          A Future of a Response of a List of Option[String].
+   * @return          A Future of a Response of Option[String].
    */
   def commentDelete(auth: Authentication, mediaId: String, commentId: String): Future[Response[Option[String]]] = {
     // todo header x-auth
@@ -362,7 +362,7 @@ object Scalagram {
    *
    * @param auth    Credentials.
    * @param mediaId Id-number of media object.
-   * @return        A Future of a Response of a List of Option[String].
+   * @return        A Future of a Response of Option[String].
    */
   def like(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
     // todo header x-auth
@@ -376,13 +376,59 @@ object Scalagram {
    *
    * @param auth    Credentials.
    * @param mediaId Id-number of media object.
-   * @return        A Future of a Response of a List of Option[String].
+   * @return        A Future of a Response of Option[String].
    */
   def unlike(auth: Authentication, mediaId: String): Future[Response[Option[String]]] = {
     // todo header x-auth
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
     Request.send[Option[String]](request)
+  }
+
+  /**
+   * Get information about a tag object.
+   *
+   * @param auth Credentials.
+   * @param tag  A valid tag name without a leading #. (eg. snowy, nofilter).
+   * @return     A Future of a Response of a Tag
+   */
+  def tagInformation(auth: Authentication, tag: String): Future[Response[Tag]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/tags/$tag?$stringAuth")
+    Request.send[Tag](request)
+  }
+
+  /**
+   * Get a list of recently tagged media.
+   *
+   * @param auth     Credentials.
+   * @param tag      A valid tag name without a leading #. (eg. snowy, nofilter).
+   * @param minTagId Return media later than this.
+   * @param maxTagId Return media earlier than this.
+   * @return         A Future of a Response of a List of Media.
+   */
+  def tagRecent(auth: Authentication, tag: String, minTagId: Option[String] = None, maxTagId: Option[String] = None)
+    : Future[Response[List[Media]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(
+      s"https://api.instagram.com/v1/tags/$tag/media/recent?$stringAuth" +
+      s"&min_tag_id=${minTagId.mkString}&max_tag_id=${maxTagId.mkString}"
+    )
+    Request.send[List[Media]](request)
+  }
+
+  /**
+   * Search for tags by name. Results are ordered first as an exact match, then by popularity.
+   * Short tags will be treated as exact matches.
+   * 
+   * @param auth Credentials.
+   * @param tag  A valid tag name without a leading #. (eg. snowy, nofilter).
+   * @return     A Future of a Response of a List of Tag.
+   */
+  def tagSearch(auth: Authentication, tag: String): Future[Response[List[Tag]]] = {
+    val stringAuth = Authentication.toGETParams(auth)
+    val request = url(s"https://api.instagram.com/v1/tags/search?q=$tag&$stringAuth")
+    Request.send[List[Tag]](request)
   }
 
 }
