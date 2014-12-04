@@ -18,7 +18,6 @@ class ScalagramSpec extends FlatSpec with Matchers {
       BePropertyMatchResult(left.getClass.isAssignableFrom(clazz), "an instance of " + clazz.getName) }
   }
 
-  // todo a better error message to explain people to create the token.txt file
   private def readAccessTokenFromConfig(): AccessToken = {
     Try {
       val tokenFile = Source.fromURL(getClass.getResource("/token.txt")).mkString
@@ -40,6 +39,46 @@ class ScalagramSpec extends FlatSpec with Matchers {
     val request = Await.result(Scalagram.userInfo(auth, "36783"), 10 seconds)
     request should be (anInstanceOf[Response[Profile]])
     request.data.get.id should be ("36783")
+  }
+
+  "userFeed" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.userFeed(auth), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "mediaRecent" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.mediaRecent(auth, "36783"), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "liked" should "return a Response[List[Media]]" in {
+    val request = Await.result(Scalagram.liked(auth), 10 seconds)
+    request should be (anInstanceOf[Response[List[Media]]])
+  }
+
+  "userSearch" should "return a Response[List[UserSearch]]" in {
+    val request = Await.result(Scalagram.userSearch(auth, "rydgel"), 10 seconds)
+    request should be (anInstanceOf[Response[List[UserSearch]]])
+  }
+
+  "follows" should "return a Response[List[User]]" in {
+    val request = Await.result(Scalagram.follows(auth, "36783"), 10 seconds)
+    request should be (anInstanceOf[Response[List[User]]])
+  }
+
+  "followedBy" should "return a Response[List[User]]" in {
+    val request = Await.result(Scalagram.followedBy(auth, "36783"), 10 seconds)
+    request should be (anInstanceOf[Response[List[User]]])
+  }
+
+  "relationshipRequests" should "return a Response[List[User]]" in {
+    val request = Await.result(Scalagram.relationshipRequests(auth), 10 seconds)
+    request should be (anInstanceOf[Response[List[User]]])
+  }
+
+  "relationship" should "return a Response[Relationship]" in {
+    val request = Await.result(Scalagram.relationship(auth, "36783"), 10 seconds)
+    request should be (anInstanceOf[Response[Relationship]])
   }
 
 }

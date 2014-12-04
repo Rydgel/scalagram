@@ -6,7 +6,9 @@ import dispatch._, Defaults._
 import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
-
+import java.net._
+import javax.crypto.spec.SecretKeySpec
+import javax.crypto.Mac
 
 object Authentication {
 
@@ -68,6 +70,50 @@ object Authentication {
   def tokenURL(clientId: String, redirectURI: String, comments: Boolean = false, relationships: Boolean = false, likes: Boolean = false): String = {
     s"https://api.instagram.com/oauth/authorize/?client_id=$clientId&redirect_uri=$redirectURI" +
     s"&response_type=token&${scopes(comments, relationships, likes)}"
+  }
+
+  /**
+   * Get the local IP Address.
+   *
+   * @return String IP address.
+   */
+  private def localIpAddress(): String = InetAddress.getLocalHost.getHostAddress
+
+  private def toHex(bytes: Array[Byte]): String = {
+    val buffer = new StringBuilder(bytes.length * 2)
+    for (i <- 0 until bytes.length) {
+      val b = bytes(i)
+      val bi: Int = if (b < 0) b + 256 else b
+      buffer append toHex((bi >>> 4).asInstanceOf[Byte])
+      buffer append toHex((bi & 0x0F).asInstanceOf[Byte])
+    }
+    buffer.toString()
+  }
+
+  private def toHex(b: Byte): Char = {
+    require(b >= 0 && b <= 15, "Byte " + b + " was not between 0 and 15")
+    if (b < 10)
+      ('0'.asInstanceOf[Int] + b).asInstanceOf[Char]
+    else
+      ('a'.asInstanceOf[Int] + (b - 10)).asInstanceOf[Char]
+  }
+
+  /**
+   * Signed header for Instagram. More informations on this page
+   * http://instagram.com/developer/restrict-api-requests/
+   *
+   * @param clientSecret  Your Instagram client secret token.
+   * @param ips           Optional List of IP addresses.
+   * @return String       Encoded header.
+   */
+  def createSignedHeader(clientSecret: String, ips: Option[List[String]]): String = {
+    val ipString = ips.getOrElse(List(localIpAddress())).mkString(",")
+    val secret = new SecretKeySpec(clientSecret.getBytes, "HmacSHA256")
+    val mac = Mac.getInstance("HmacSHA256")
+    mac.init(secret)
+    val result = mac.doFinal(ipString.getBytes)
+    val resultString = toHex(result)
+    List(ipString, resultString).mkString("|")
   }
 
   /**
