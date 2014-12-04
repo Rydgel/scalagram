@@ -347,6 +347,7 @@ object Scalagram {
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
+    println(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
     val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Option[String]](request)
   }

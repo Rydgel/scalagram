@@ -19,6 +19,7 @@ object Request {
   def send[T](request: Req)(implicit r: Reads[T]): Future[Response[T]] = {
     Http(request).map { resp =>
       val response = resp.getResponseBody
+      println(response)
       val headers = ningHeadersToMap(resp.getHeaders)
       if (resp.getStatusCode != 200) throw new Exception(parseMeta(response).toString)
       val data = (Json.parse(response) \ "data").validate[T] match {
