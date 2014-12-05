@@ -51,23 +51,23 @@ organizationHomepage := Some(url("http://phollow.fr"))
 
 description := "Instagram API wrapper for Scala"
 
-pomExtra := (
+pomExtra :=
   <url>https://github.com/Rydgel/scalagram</url>
-    <licenses>
-      <license>
-        <name>MIT</name>
-        <url>http://www.opensource.org/licenses/mit-license.php</url>
-        <distribution>repo</distribution>
-      </license>
-    </licenses>
-    <scm>
-      <url>git@github.com:Rydgel/scalagram.git</url>
-      <connection>scm:git:git@github.com:Rydgel/scalagram.git</connection>
-    </scm>
-    <developers>
-      <developer>
-        <id>rydgel</id>
-        <name>Jérôme Mahuet</name>
-        <url>http://phollow.fr</url>
-      </developer>
-    </developers>)
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>git@github.com:Rydgel/scalagram.git</url>
+    <connection>scm:git:git@github.com:Rydgel/scalagram.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>rydgel</id>
+      <name>Jérôme Mahuet</name>
+      <url>http://phollow.fr</url>
+    </developer>
+  </developers>
