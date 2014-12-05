@@ -43,8 +43,8 @@ val codeUrl = Authentication.codeURL(clientId, redirectURI)
 // Step 2: Use the code to get an AccessToken
 val accessTokenFuture = Authentication.requestToken(clientId, clientSecret, redirectURI, code = "the-code-from-step-1")
 val accessToken = accessTokenFuture onComplete {
-    case Success(Response(Some(token: AccessToken)) => token
-    case Failure(t) => println("An error has occured: " + t.getMessage)
+  case Success(Response(Some(token: AccessToken)) => token
+  case Failure(t) => println("An error has occured: " + t.getMessage)
 }
 
 // Making an authenticated call
@@ -67,5 +67,12 @@ val response: Response[List[Media]] = Await.result(Scalagram.userFeed(auth), 10 
 // You can activate this option for some calls
 // (please read the documentation here http://instagram.com/developer/restrict-api-requests/)
 val headers = Authentication.createSignedHeader(clientSecret, Some(List("127.0.0.1")))
-
+// Usage example
+Scalagram.comment(auth, "media-id", "my comment", Some(headers))
 ```
+
+Please look at this file to see all availables methods: https://github.com/Rydgel/scalagram/blob/master/src/main/scala/com/rydgel/scalagram/Scalagram.scala
+
+### Todo
+
+Currently subscriptions stuff needs to be done.
