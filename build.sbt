@@ -40,12 +40,12 @@ licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.php
 
 homepage := Some(url("https://github.com/Rydgel/scalagram"))
 
-organizationName := "com.rydgel"
+organizationName := "com.github.Rydgel"
 
 // Your project orgnization (package name)
-organization := "org.rydgel.scalagram"
+organization := "com.github.Rydgel"
 
-profileName := "org.rydgel"
+profileName := "com.github.Rydgel"
 
 organizationHomepage := Some(url("http://phollow.fr"))
 

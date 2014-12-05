@@ -9,7 +9,7 @@ The current release is distributed for Scala 2.11.4 or later. Add scalagram as a
 Add the scalagram dependency:
 
 ```scala
-val scalagram = "com.rydgel" %% "scalagram" % "0.1.0"
+val scalagram = "com.github.Rydgel" %% "scalagram" % "0.1.0"
 ```
 
 ## Run the test suite
