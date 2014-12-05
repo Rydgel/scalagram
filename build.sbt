@@ -1,3 +1,8 @@
+import SonatypeKeys._
+
+// Import default settings. This changes `publishTo` settings to use the Sonatype repository and add several commands for publishing.
+sonatypeSettings
+
 name := "scalagram"
 
 version := "0.1.0"
@@ -36,6 +41,11 @@ licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.php
 homepage := Some(url("https://github.com/Rydgel/scalagram"))
 
 organizationName := "com.rydgel"
+
+// Your project orgnization (package name)
+organization := "org.rydgel.scalagram"
+
+profileName := "org.rydgel"
 
 organizationHomepage := Some(url("http://phollow.fr"))
 
