@@ -36,10 +36,6 @@ publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
 
-licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.php"))
-
-homepage := Some(url("https://github.com/Rydgel/scalagram"))
-
 organizationName := "com.github.Rydgel"
 
 // Your project orgnization (package name)
