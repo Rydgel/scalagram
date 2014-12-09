@@ -56,7 +56,7 @@ object Scalagram {
     val stringAuth = Authentication.toGETParams(auth)
     val request = url(
       s"https://api.instagram.com/v1/users/$userId/media/recent/?$stringAuth&max_timestamp=${maxTimestamp.mkString}" +
-      s"&min_timestamp=${minTimestamp.mkString}&min_id=${minId.mkString}&max_id=${maxId.mkString}"
+      s"&min_timestamp=${minTimestamp.mkString}&min_id=${minId.mkString}&max_id=${maxId.mkString}&count=${count.mkString}"
     )
     Request.send[List[Media]](request)
   }
@@ -347,7 +347,6 @@ object Scalagram {
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val prepareRequest = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
-    println(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
     val request = addSignedHeader(prepareRequest, signedHeader)
     Request.send[Option[String]](request)
   }
