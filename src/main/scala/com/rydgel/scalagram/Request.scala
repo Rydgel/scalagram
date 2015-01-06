@@ -34,8 +34,11 @@ object Request {
   }
 
   private def parseMeta(response: String): Meta = {
+    // This looks weird right? Well Instagram JSON errors are not always formatted the same way...
     val errorMeta = Meta(Some("UnknownException"), 500, Some("Unknown error"))
-    (Json.parse(response) \ "meta").validate[Meta].getOrElse(errorMeta)
+    (Json.parse(response) \ "meta").validate[Meta].getOrElse(
+      Json.parse(response).validate[Meta].getOrElse(errorMeta)
+    )
   }
 
   private def ningHeadersToMap(headers: FluentCaseInsensitiveStringsMap) = {
