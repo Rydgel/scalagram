@@ -5,9 +5,9 @@ sonatypeSettings
 
 name := "scalagram"
 
-version := "0.1.3"
+version := "0.1.4"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.5"
 
 scalacOptions += "-feature"
 

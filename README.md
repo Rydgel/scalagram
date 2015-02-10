@@ -2,14 +2,14 @@
 
 ## Installation
 
-The current release is distributed for Scala 2.11.4 or later. Add scalagram as a dependency in sbt:
+The current release is distributed for Scala 2.11 or later. Add scalagram as a dependency in sbt:
 
 ### sbt
 
 Add the scalagram dependency:
 
 ```scala
-val scalagram = "com.github.Rydgel" %% "scalagram" % "0.1.3"
+val scalagram = "com.github.Rydgel" %% "scalagram" % "0.1.4"
 ```
 
 ## Run the test suite

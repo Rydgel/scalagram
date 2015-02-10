@@ -11,7 +11,7 @@ case class Media(
     comments: Comments,
     caption: Option[Comment],
     likes: Likes,
-    link: String,
+    link: Option[String],
     user: UserSearch,
     created_time: String,
     images: Images,
