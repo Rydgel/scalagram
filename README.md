@@ -43,7 +43,7 @@ val codeUrl = Authentication.codeURL(clientId, redirectURI)
 // Step 2: Use the code to get an AccessToken
 val accessTokenFuture = Authentication.requestToken(clientId, clientSecret, redirectURI, code = "the-code-from-step-1")
 val accessToken = accessTokenFuture onComplete {
-  case Success(Response(Some(token: AccessToken)) => token
+  case Success(Response(Some(token: AccessToken), _, _, _)) => token
   case Failure(t) => println("An error has occured: " + t.getMessage)
 }
 
