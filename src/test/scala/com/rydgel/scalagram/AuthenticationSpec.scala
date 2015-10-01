@@ -43,11 +43,15 @@ class AuthenticationSpec extends FlatSpec with Matchers {
     )
   }
 
-  "createSignedHeader" should "return a signed header for Instagram" in {
-    val clientSecret = "my-secret"
-    val ips = List("127.0.0.1")
-    Authentication.createSignedHeader(clientSecret, Some(ips)) should be (
-      "127.0.0.1|65f861cacea7dd9763d1623da913043a0226fc5f2decb1f937f3d2beb6f8cc43"
+  "createSignedParam" should "return a signed param for Instagram" in {
+    val secret = "6dc1787668c64c939929c17683d7cb74"
+    val endpoint = "/media/657988443280050001_25025320"
+    val params = Map(
+      "access_token" -> "fb2e77d.47a0479900504cb3ab4a1f626d174d2d",
+      "count" -> "10"
+    )
+    Authentication.createSignedParam(secret, endpoint, params) should be (
+      "260634b241a6cfef5e4644c205fb30246ff637591142781b86e2075faf1b163a"
     )
   }
 
