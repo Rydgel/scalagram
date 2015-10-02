@@ -63,12 +63,13 @@ import scala.language.postfixOps
 
 val response: Response[List[Media]] = Await.result(Scalagram.userFeed(auth), 10 seconds)
 
-// Enforce signed headers
-// You can activate this option for some calls
-// (please read the documentation here http://instagram.com/developer/restrict-api-requests/)
-val headers = Authentication.createSignedHeader(clientSecret, Some(List("127.0.0.1")))
+// Enforce signed parameters
+// You can activate this option for all your calls
+// You just need to create a SignedAccessToken instead.
+// (please read the documentation here https://instagram.com/developer/secure-api-requests/)
+val signedAccessToken = SignedAccessToken(accessToken, clientSecret = secret)
 // Usage example
-Scalagram.comment(auth, "media-id", "my comment", Some(headers))
+Scalagram.comment(signedAccessToken, "media-id", "my comment")
 ```
 
 Please look at this file to see all availables methods: https://github.com/Rydgel/scalagram/blob/master/src/main/scala/com/rydgel/scalagram/Scalagram.scala

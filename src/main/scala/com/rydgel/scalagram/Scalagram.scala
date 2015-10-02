@@ -13,13 +13,20 @@ object Scalagram {
    * @param url  API URI
    * @return     String - new URI
    */
-  private def addSecureSigIfNeeded(auth: Authentication, url: String): String = auth match {
+  private def addSecureSigIfNeeded(auth: Authentication, url: String, postData: Option[Map[String,String]] = None)
+  : String = auth match {
     case SignedAccessToken(_, secret) =>
       val uri = parse(url)
       val params = uri.query.params
-      val sig = Authentication.createSignedParam(secret, uri.path, params.toMap)
+      val sig = Authentication.createSignedParam(secret, uri.pathRaw.replace("/v1", ""), concatMapOpt(postData, params.toMap))
       uri.addParam("sig", sig).toStringRaw
     case _ => url
+  }
+
+  private def concatMapOpt(postData: Option[Map[String,String]], params: Map[String,Option[String]])
+  : Map[String,Option[String]] = postData match {
+    case Some(m) => params ++ m.mapValues(Some(_))
+    case _ => params
   }
 
   /**
@@ -31,7 +38,7 @@ object Scalagram {
    */
   def userInfo(auth: Authentication, userId: String): Future[Response[Profile]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val urlString = addSecureSigIfNeeded(auth, s"https://api.instagram.com/v1/users/$userId/?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth, s"https://api.instagram.com/v1/users/$userId?$stringAuth")
     val request = url(urlString)
     Request.send[Profile](request)
   }
@@ -73,7 +80,7 @@ object Scalagram {
   : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val urlString = addSecureSigIfNeeded(auth,
-      s"https://api.instagram.com/v1/users/$userId/media/recent/?$stringAuth&max_timestamp=${maxTimestamp.mkString}" +
+      s"https://api.instagram.com/v1/users/$userId/media/recent?$stringAuth&max_timestamp=${maxTimestamp.mkString}" +
       s"&min_timestamp=${minTimestamp.mkString}&min_id=${minId.mkString}&max_id=${maxId.mkString}&count=${count.mkString}")
     val request = url(urlString)
     Request.send[List[Media]](request)
@@ -194,9 +201,10 @@ object Scalagram {
   private def updateRelationship(auth: Authentication, userId: String, action: String)
   : Future[Response[Relationship]] = {
     val stringAuth = Authentication.toGETParams(auth)
+    val actionMap = Map("action" -> action)
     val urlString = addSecureSigIfNeeded(auth,
-      s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth")
-    val request = url(urlString) << Map("action" -> action)
+      s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth", Some(actionMap))
+    val request = url(urlString) << actionMap
     Request.send[Relationship](request)
   }
 
@@ -369,9 +377,10 @@ object Scalagram {
   def comment(auth: Authentication, mediaId: String, comment: String)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
+    val commentTextMap = Map("text" -> comment)
     val urlString = addSecureSigIfNeeded(auth,
-      s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
-    val request = url(urlString) << Map("text" -> comment)
+      s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth", Some(commentTextMap))
+    val request = url(urlString) << commentTextMap
     Request.send[Option[String]](request)
   }
 
@@ -387,7 +396,7 @@ object Scalagram {
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
     val urlString = addSecureSigIfNeeded(auth,
-      s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth")
+      s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId?$stringAuth")
     val request = url(urlString).DELETE
     Request.send[Option[String]](request)
   }
