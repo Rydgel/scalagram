@@ -5,9 +5,9 @@ sonatypeSettings
 
 name := "scalagram"
 
-version := "0.1.5"
+version := "0.2.0"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.7"
 
 scalacOptions += "-feature"
 
@@ -18,6 +18,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.3.7",
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
+  "com.netaporter" %% "scala-uri" % "0.4.9",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "org.slf4j" % "slf4j-nop" % "1.6.4"
 )

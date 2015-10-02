@@ -21,6 +21,18 @@ object Authentication {
   def toGETParams(a: Authentication): String = a match {
     case ClientId(id) => s"client_id=$id"
     case AccessToken(token) => s"access_token=$token"
+    case SignedAccessToken(token, _) => s"access_token=$token"
+  }
+
+  /**
+   * Tell if authentication type is secure.
+   *
+   * @param a Authentication
+   * @return  Boolean
+   */
+  def isSecure(a: Authentication): Boolean = a match {
+    case SignedAccessToken(_, _) => true
+    case _ => false
   }
 
   /**
@@ -38,7 +50,7 @@ object Authentication {
       if (likes) "likes" else ""
     ).filter(_ != "")
 
-    if (scopes.headOption.isDefined) scopes.mkString("scope=", "+", "")
+    if (scopes.nonEmpty) scopes.mkString("scope=", "+", "")
     else ""
   }
 
@@ -73,13 +85,6 @@ object Authentication {
   }
 
   /**
-   * Get the local IP Address.
-   *
-   * @return String IP address.
-   */
-  private def localIpAddress(): String = InetAddress.getLocalHost.getHostAddress
-
-  /**
    * Converts an array of `bytes` to a hexadecimal representation String.
    * "Stolen" from the sbt source code.
    * Credits: http://www.scala-sbt.org/0.13.7/sxr/sbt/Hash.scala.html
@@ -89,7 +94,7 @@ object Authentication {
    */
   private def toHex(bytes: Array[Byte]): String = {
     val buffer = new StringBuilder(bytes.length * 2)
-    for (i <- 0 until bytes.length) {
+    for (i <- bytes.indices) {
       val b = bytes(i)
       val bi: Int = if (b < 0) b + 256 else b
       buffer append toHex((bi >>> 4).asInstanceOf[Byte])
@@ -100,10 +105,8 @@ object Authentication {
 
   private def toHex(b: Byte): Char = {
     require(b >= 0 && b <= 15, "Byte " + b + " was not between 0 and 15")
-    if (b < 10)
-      ('0'.asInstanceOf[Int] + b).asInstanceOf[Char]
-    else
-      ('a'.asInstanceOf[Int] + (b - 10)).asInstanceOf[Char]
+    if (b < 10) ('0'.asInstanceOf[Int] + b).asInstanceOf[Char]
+    else        ('a'.asInstanceOf[Int] + (b - 10)).asInstanceOf[Char]
   }
 
   /**
@@ -111,17 +114,18 @@ object Authentication {
    * http://instagram.com/developer/restrict-api-requests/
    *
    * @param clientSecret  Your Instagram client secret token.
-   * @param ips           Optional List of IP addresses.
+   * @param endpoint      API endpoint
+   * @param params        Map of API parameters
    * @return String       Encoded header.
    */
-  def createSignedHeader(clientSecret: String, ips: Option[List[String]]): String = {
-    val ipString = ips.getOrElse(List(localIpAddress())).mkString(",")
+  def createSignedParam(clientSecret: String, endpoint: String, params: Map[String, Option[String]]): String = {
+    val paramsString = params.keys.toList.sorted.map(key => s"|$key=${params(key).mkString}").mkString
+    val sig = s"$endpoint$paramsString"
     val secret = new SecretKeySpec(clientSecret.getBytes, "HmacSHA256")
     val mac = Mac.getInstance("HmacSHA256")
     mac.init(secret)
-    val result = mac.doFinal(ipString.getBytes)
-    val resultString = toHex(result)
-    List(ipString, resultString).mkString("|")
+    val result = mac.doFinal(sig.getBytes)
+    toHex(result)
   }
 
   /**
