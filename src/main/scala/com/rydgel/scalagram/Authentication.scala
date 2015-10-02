@@ -25,6 +25,17 @@ object Authentication {
   }
 
   /**
+   * Tell if authentication type is secure.
+   *
+   * @param a Authentication
+   * @return  Boolean
+   */
+  def isSecure(a: Authentication): Boolean = a match {
+    case SignedAccessToken(_, _) => true
+    case _ => false
+  }
+
+  /**
    * Scope string which will be append to the URL.
    *
    * @param comments       Comments scope.
@@ -107,8 +118,8 @@ object Authentication {
    * @param params        Map of API parameters
    * @return String       Encoded header.
    */
-  def createSignedParam(clientSecret: String, endpoint: String, params: Map[String, String]): String = {
-    val paramsString = params.keys.toList.sorted.map(key => s"|$key=${params(key)}").mkString
+  def createSignedParam(clientSecret: String, endpoint: String, params: Map[String, Option[String]]): String = {
+    val paramsString = params.keys.toList.sorted.map(key => s"|$key=${params(key).mkString}").mkString
     val sig = s"$endpoint$paramsString"
     val secret = new SecretKeySpec(clientSecret.getBytes, "HmacSHA256")
     val mac = Mac.getInstance("HmacSHA256")

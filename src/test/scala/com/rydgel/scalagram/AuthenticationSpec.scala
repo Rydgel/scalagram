@@ -47,8 +47,8 @@ class AuthenticationSpec extends FlatSpec with Matchers {
     val secret = "6dc1787668c64c939929c17683d7cb74"
     val endpoint = "/media/657988443280050001_25025320"
     val params = Map(
-      "access_token" -> "fb2e77d.47a0479900504cb3ab4a1f626d174d2d",
-      "count" -> "10"
+      "access_token" -> Some("fb2e77d.47a0479900504cb3ab4a1f626d174d2d"),
+      "count" -> Some("10")
     )
     Authentication.createSignedParam(secret, endpoint, params) should be (
       "260634b241a6cfef5e4644c205fb30246ff637591142781b86e2075faf1b163a"

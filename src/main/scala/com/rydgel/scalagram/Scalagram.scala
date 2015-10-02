@@ -2,8 +2,25 @@ package com.rydgel.scalagram
 
 import com.rydgel.scalagram.responses._
 import dispatch._
+import com.netaporter.uri.Uri.parse
 
 object Scalagram {
+
+  /**
+   * Add sig parameter if needed.
+   *
+   * @param auth Authentication.
+   * @param url  API URI
+   * @return     String - new URI
+   */
+  private def addSecureSigIfNeeded(auth: Authentication, url: String): String = auth match {
+    case SignedAccessToken(_, secret) =>
+      val uri = parse(url)
+      val params = uri.query.params
+      val sig = Authentication.createSignedParam(secret, uri.path, params.toMap)
+      uri.addParam("sig", sig).toStringRaw
+    case _ => url
+  }
 
   /**
    * Get basic information about a user.
@@ -14,7 +31,8 @@ object Scalagram {
    */
   def userInfo(auth: Authentication, userId: String): Future[Response[Profile]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/users/$userId/?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth, s"https://api.instagram.com/v1/users/$userId/?$stringAuth")
+    val request = url(urlString)
     Request.send[Profile](request)
   }
 
@@ -31,10 +49,10 @@ object Scalagram {
                maxId: Option[String] = None)
   : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/users/self/feed?$stringAuth&count=${count.mkString}" +
-      s"&min_id=${minId.mkString}&max_id=${maxId.mkString}"
-    )
+      s"&min_id=${minId.mkString}&max_id=${maxId.mkString}")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -54,10 +72,10 @@ object Scalagram {
                   maxTimestamp: Option[String] = None, minId: Option[String] = None, maxId: Option[String] = None)
   : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/users/$userId/media/recent/?$stringAuth&max_timestamp=${maxTimestamp.mkString}" +
-      s"&min_timestamp=${minTimestamp.mkString}&min_id=${minId.mkString}&max_id=${maxId.mkString}&count=${count.mkString}"
-    )
+      s"&min_timestamp=${minTimestamp.mkString}&min_id=${minId.mkString}&max_id=${maxId.mkString}&count=${count.mkString}")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -72,10 +90,10 @@ object Scalagram {
   def liked(auth: Authentication, count: Option[Int] = None, maxLikeId: Option[String] = None)
   : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/users/self/media/liked?$stringAuth&count=${count.mkString}" +
-      s"&max_like_id=${maxLikeId.mkString}"
-    )
+      s"&max_like_id=${maxLikeId.mkString}")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -90,7 +108,9 @@ object Scalagram {
   def userSearch(auth: Authentication, name: String, count: Option[Int] = None)
   : Future[Response[List[UserSearch]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/users/search?$stringAuth&q=$name&count=${count.mkString}")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/users/search?$stringAuth&q=$name&count=${count.mkString}")
+    val request = url(urlString)
     Request.send[List[UserSearch]](request)
   }
 
@@ -106,9 +126,9 @@ object Scalagram {
   def follows(auth: Authentication, userId: String, count: Option[Int] = None, cursor: Option[String] = None)
   : Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
-      s"https://api.instagram.com/v1/users/$userId/follows?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
-    )
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/users/$userId/follows?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}")
+    val request = url(urlString)
     Request.send[List[User]](request)
   }
 
@@ -124,9 +144,9 @@ object Scalagram {
   def followedBy(auth: Authentication, userId: String, count: Option[Int] = None, cursor: Option[String] = None)
   : Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
-      s"https://api.instagram.com/v1/users/$userId/followed-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
-    )
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/users/$userId/followed-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}")
+    val request = url(urlString)
     Request.send[List[User]](request)
   }
 
@@ -141,9 +161,9 @@ object Scalagram {
   def relationshipRequests(auth: Authentication, count: Option[Int] = None, cursor: Option[String] = None)
   : Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
-      s"https://api.instagram.com/v1/users/self/requested-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}"
-    )
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/users/self/requested-by?$stringAuth&count=${count.mkString}&cursor=${cursor.mkString}")
+    val request = url(urlString)
     Request.send[List[User]](request)
   }
 
@@ -156,7 +176,9 @@ object Scalagram {
    */
   def relationship(auth: Authentication, userId: String): Future[Response[Relationship]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth")
+    val request = url(urlString)
     Request.send[Relationship](request)
   }
 
@@ -172,7 +194,9 @@ object Scalagram {
   private def updateRelationship(auth: Authentication, userId: String, action: String)
   : Future[Response[Relationship]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth") << Map("action" -> action)
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/users/$userId/relationship?$stringAuth")
+    val request = url(urlString) << Map("action" -> action)
     Request.send[Relationship](request)
   }
 
@@ -257,7 +281,9 @@ object Scalagram {
    */
   def media(auth: Authentication, mediaId: String): Future[Response[Media]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId?$stringAuth")
+    val request = url(urlString)
     Request.send[Media](request)
   }
 
@@ -273,7 +299,9 @@ object Scalagram {
    */
   def mediaShortcode(auth: Authentication, shortcode: String): Future[Response[Media]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/shortcode/$shortcode?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/shortcode/$shortcode?$stringAuth")
+    val request = url(urlString)
     Request.send[Media](request)
   }
 
@@ -292,10 +320,10 @@ object Scalagram {
                   maxTimestamp: Option[String] = None, distance: Option[Int] = None)
   : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/media/search?$stringAuth&lat=${coordinates._1.toString}&lng=${coordinates._2.toString}" +
-      s"&min_timestamp=${minTimestamp.mkString}&max_timestamp=${maxTimestamp.mkString}&distance=${distance.mkString}"
-    )
+      s"&min_timestamp=${minTimestamp.mkString}&max_timestamp=${maxTimestamp.mkString}&distance=${distance.mkString}")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -307,7 +335,9 @@ object Scalagram {
    */
   def popular(auth: Authentication): Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/popular?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/popular?$stringAuth")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -320,7 +350,9 @@ object Scalagram {
    */
   def comments(auth: Authentication, mediaId: String): Future[Response[List[Comment]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
+    val request = url(urlString)
     Request.send[List[Comment]](request)
   }
 
@@ -337,7 +369,9 @@ object Scalagram {
   def comment(auth: Authentication, mediaId: String, comment: String)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth") << Map("text" -> comment)
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId/comments?$stringAuth")
+    val request = url(urlString) << Map("text" -> comment)
     Request.send[Option[String]](request)
   }
 
@@ -352,7 +386,9 @@ object Scalagram {
   def commentDelete(auth: Authentication, mediaId: String, commentId: String)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth").DELETE
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId/comments/$commentId/?$stringAuth")
+    val request = url(urlString).DELETE
     Request.send[Option[String]](request)
   }
 
@@ -365,7 +401,9 @@ object Scalagram {
    */
   def likes(auth: Authentication, mediaId: String): Future[Response[List[User]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth")
+    val request = url(urlString)
     Request.send[List[User]](request)
   }
 
@@ -379,7 +417,9 @@ object Scalagram {
   def like(auth: Authentication, mediaId: String)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").POST
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth")
+    val request = url(urlString).POST
     Request.send[Option[String]](request)
   }
 
@@ -393,7 +433,9 @@ object Scalagram {
   def unlike(auth: Authentication, mediaId: String)
   : Future[Response[Option[String]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth").DELETE
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/media/$mediaId/likes?$stringAuth")
+    val request = url(urlString).DELETE
     Request.send[Option[String]](request)
   }
 
@@ -406,7 +448,9 @@ object Scalagram {
    */
   def tagInformation(auth: Authentication, tag: String): Future[Response[Tag]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/tags/$tag?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/tags/$tag?$stringAuth")
+    val request = url(urlString)
     Request.send[Tag](request)
   }
 
@@ -422,10 +466,10 @@ object Scalagram {
   def tagRecent(auth: Authentication, tag: String, minTagId: Option[String] = None, maxTagId: Option[String] = None)
     : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/tags/$tag/media/recent?$stringAuth" +
-      s"&min_tag_id=${minTagId.mkString}&max_tag_id=${maxTagId.mkString}"
-    )
+      s"&min_tag_id=${minTagId.mkString}&max_tag_id=${maxTagId.mkString}")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -439,7 +483,9 @@ object Scalagram {
    */
   def tagSearch(auth: Authentication, tag: String): Future[Response[List[Tag]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/tags/search?q=$tag&$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/tags/search?q=$tag&$stringAuth")
+    val request = url(urlString)
     Request.send[List[Tag]](request)
   }
 
@@ -452,7 +498,9 @@ object Scalagram {
    */
   def location(auth: Authentication, locationId: String): Future[Response[LocationSearch]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(s"https://api.instagram.com/v1/locations/$locationId?$stringAuth")
+    val urlString = addSecureSigIfNeeded(auth,
+      s"https://api.instagram.com/v1/locations/$locationId?$stringAuth")
+    val request = url(urlString)
     Request.send[LocationSearch](request)
   }
 
@@ -473,11 +521,11 @@ object Scalagram {
                     maxId: Option[String] = None)
   : Future[Response[List[Media]]] = {
     val stringAuth = Authentication.toGETParams(auth)
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/locations/$locationId/media/recent?$stringAuth" +
       s"&min_timestamp=${minTimestamp.mkString}&max_timestamp=${maxTimestamp.mkString}" +
-      s"&min_id=${minId.mkString}&max_id=${maxId.mkString}"
-    )
+      s"&min_id=${minId.mkString}&max_id=${maxId.mkString}")
+    val request = url(urlString)
     Request.send[List[Media]](request)
   }
 
@@ -500,10 +548,10 @@ object Scalagram {
     val latitudeLongitude =
       if (coordinates.isDefined) s"&lat=${coordinates.get._1.toString}&lng=${coordinates.get._2.toString}"
       else ""
-    val request = url(
+    val urlString = addSecureSigIfNeeded(auth,
       s"https://api.instagram.com/v1/locations/search?$stringAuth&facebook_places_id=${facebookPlacesId.mkString}" +
-      s"&foursquare_v2_id=${foursquareV2Id.mkString}$latitudeLongitude"
-    )
+      s"&foursquare_v2_id=${foursquareV2Id.mkString}$latitudeLongitude")
+    val request = url(urlString)
     Request.send[List[LocationSearch]](request)
   }
 
